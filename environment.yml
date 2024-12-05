@@ -1,0 +1,21 @@
+name: atcvae
+channels:
+  - pytorch
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - pytorch=2.5.0
+  - numpy
+  - pandas
+  - matplotlib
+  - torchvision
+  - ipykernel
+  - pip
+  - rdkit
+  - tqdm
+  - wandb
+  - pyyaml
+  - pip:
+    - pytorch-lightning
+    - wget

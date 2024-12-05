@@ -1,0 +1,7 @@
+data:
+  DUD-E: "./data/DUD-E"
+  alphafold: "./data/alphafold"
+  preprocessed: "./data/preprocessed"
+  smiles: "./data/smiles"
+  output: "./data/output"
+  hist: "./data/hist"
