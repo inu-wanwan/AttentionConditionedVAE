@@ -19,7 +19,6 @@ with open(protein_list_file, 'r') as f:
     protein_list = f.read().splitlines()
 
 protein_paths = [os.path.join(dude_dir, protein) for protein in protein_list]
-protein_num = len(protein_list)
 
 results = []
 

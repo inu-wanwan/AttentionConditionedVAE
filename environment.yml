@@ -19,3 +19,4 @@ dependencies:
   - pip:
     - pytorch-lightning
     - wget
+    - beautifulsoup4
