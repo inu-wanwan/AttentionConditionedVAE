@@ -2,6 +2,7 @@ import os
 import csv
 import yaml
 from utils import load_config
+from tqdm import tqdm
 
 """
 extract_smiles.py
@@ -23,7 +24,7 @@ protein_paths = [os.path.join(dude_dir, protein) for protein in protein_list]
 results = []
 
 # extract the SMILES strings from the .ism files
-for protein_path in protein_paths:
+for protein_path in tqdm(protein_paths, desc="Extracting SMILES"):
     protein_name = os.path.basename(protein_path)
     
     for file_name in ["actives_final.ism", "decoys_final.ism"]:

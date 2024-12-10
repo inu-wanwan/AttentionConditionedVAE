@@ -32,6 +32,7 @@ df = pd.read_csv(os.path.join(smiles_path, 'smiles.csv'))
 tqdm.pandas(desc="Canonicalizing SMILES")
 df["Canonical_SMILES"] = df["SMILES"].progress_apply(canonicalize_smiles)  
 df = df.dropna(subset=["Canonical_SMILES"])
+df['Ligand_id'] = df['Ligand_id'].apply(lambda x: f"ZINC{x[1:]}" if x.startswith("C") and not x.startswith("CHEMBL") else x)
 
 # save the canonicalized SMILES strings
-df.to_csv(os.path.join(output_path, 'canonical_smiles.csv'), index=False)
+df.to_csv(os.path.join(output_path, 'canonicalized_smiles.csv'), index=False)
