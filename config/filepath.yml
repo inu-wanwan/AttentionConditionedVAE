@@ -5,3 +5,4 @@ data:
   smiles: "./data/smiles"
   output: "./data/output"
   hist: "./data/hist"
+  samples: "./data/samples"
