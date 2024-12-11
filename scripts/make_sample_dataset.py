@@ -9,7 +9,7 @@ Creates a sample dataset from the canonicalized smiles dataset.
 
 path_config = load_config('filepath.yml')
 
-smiles_file = os.path.join(path_config['data']['preprocessed'], 'canonicalized_smiles.csv')
+smiles_file = os.path.join(path_config['data']['preprocessed'], 'ligand_with_docking_score.csv')
 output_file = os.path.join(path_config['data']['samples'], 'sample_dataset.csv')
 
 df = pd.read_csv(smiles_file)

@@ -20,3 +20,4 @@ dependencies:
     - pytorch-lightning
     - wget
     - beautifulsoup4
+    - transformers
