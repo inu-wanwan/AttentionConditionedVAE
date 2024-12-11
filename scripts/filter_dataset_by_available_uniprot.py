@@ -7,7 +7,7 @@ smiles_dir = config['data']['smiles']
 preprocessed_dir = config['data']['preprocessed']
 
 # Load available uniprot data
-available_target = pd.read_csv(os.path.join(smiles_dir, 'exsisting_uniprot.csv'))
+available_target = pd.read_csv(os.path.join(smiles_dir, 'available_uniprot.csv'))
 available_target = available_target['Target'].apply(lambda x: x.lower())
 
 # Load dataset and filter by available uniprot data

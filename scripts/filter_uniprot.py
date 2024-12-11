@@ -19,6 +19,6 @@ uniprot = df['UniProt ID']
 exsisting_uniprot = df[uniprot.apply(lambda uniprot: os.path.exists(os.path.join(alphafold_dir, uniprot)))]
 missing_uniprot = df[~uniprot.apply(lambda uniprot: os.path.exists(os.path.join(alphafold_dir, uniprot)))]
 
-exsisting_uniprot.to_csv(os.path.join(smiles_dir, 'exsisting_uniprot.csv'), index=False)
+exsisting_uniprot.to_csv(os.path.join(smiles_dir, 'available_uniprot.csv'), index=False)
 missing_uniprot.to_csv(os.path.join(smiles_dir, 'missing_uniprot.csv'), index=False)
 
