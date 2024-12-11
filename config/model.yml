@@ -1,0 +1,5 @@
+sample_model:
+  name: SampleModel
+  description: This is a sample model
+  version: 1.0.0
+  batch_size: 32

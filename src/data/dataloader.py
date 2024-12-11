@@ -2,6 +2,12 @@ from torch.utils.data import DataLoader
 from src.data.dataset import SmilesProteinDataset
 import torch
 
+"""
+dataloader.py
+Defines the custom DataLoader for the SMILES dataset.
+ATTENTION: Define the smiles_max_len in this script. please edit if necessary.
+"""
+
     
 def custom_colleate_fn(batch):
     """
@@ -13,7 +19,7 @@ def custom_colleate_fn(batch):
     protein_masks = torch.stack([item["protein_mask"] for item in batch])
 
     # Batch SMILES featurization
-    smiles_embeddings, smiles_mask = SmilesProteinDataset.featurize_smiles_static(smiles_list)
+    smiles_embeddings, smiles_mask = SmilesProteinDataset.featurize_smiles_static(smiles_list, smiles_max_len=100)
 
     return {
         "smiles_embedding": smiles_embeddings,

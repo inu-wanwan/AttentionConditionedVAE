@@ -90,7 +90,7 @@ class SmilesProteinDataset(Dataset):
         return padded_embedding, attention_mask
     
     @staticmethod
-    def featurize_smiles_static(smiles_list):
+    def featurize_smiles_static(smiles_list, smiles_max_len):
         """
         Static method for batch featurization of SMILES strings.
         This allows featurization without an instance.
@@ -112,12 +112,14 @@ class SmilesProteinDataset(Dataset):
 
         # Pad embeddings to max_seq_len
         token_embeddings = outputs.last_hidden_state
-        max_seq_len = input_ids.size(1)
+        max_seq_len = smiles_max_len
         embedding_dim = token_embeddings.size(-1)
         padded_embeddings = torch.zeros(len(smiles_list), max_seq_len, embedding_dim, device=device)
         padded_embeddings[:, :token_embeddings.size(1), :] = token_embeddings
+        padded_attention_mask = torch.zeros(len(smiles_list), max_seq_len, dtype=attention_mask.dtype, device=device)
+        padded_attention_mask[:, :attention_mask.size(1)] = attention_mask
 
-        return padded_embeddings, attention_mask
+        return padded_embeddings, padded_attention_mask
 
 def load_config(config_file):
     config_path = os.path.join('config', config_file)

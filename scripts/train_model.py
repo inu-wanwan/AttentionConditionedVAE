@@ -3,21 +3,29 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../src")))
 from utils import load_config
 from torch.utils.data import DataLoader
-from data.dataset import get_dataloader
+from src.data.dataloader import get_dataloader
 from utils import load_config
 
 # load the configuration
-config = load_config('filepath.yml')
-alphafold_dir = config['data']['alphafold']
+file_config = load_config('filepath.yml')
+data_config = load_config('data.yml')
+model_config = load_config('model.yml')
 
-dataset = SmilesProteinDataset(
-    csv_file='data/samples/sample_dataset.csv',
-    alphafold_dir=alphafold_dir,
-    )
+alphafold_dir = file_config['data']['alphafold']
+data_dir = file_config['data']['samples']
 
-print(f"Dataset size: {len(dataset)}")
+smiles_max_len = data_config['dataset']['smiles_max_len']
+protein_max_len = data_config['dataset']['protein_max_len']
 
-dataloader = DataLoader(dataset, batch_size=5, shuffle=True)
+batch_size = model_config['sample_model']['batch_size']
+
+dataloader = get_dataloader(
+    csv_file=os.path.join(data_dir, 'sample_dataset.csv'),
+    smiles_max_len=smiles_max_len,
+    protein_max_len=protein_max_len,
+    batch_size=batch_size,
+    shuffle=True,
+)
 
 for batch_idx, batch in enumerate(dataloader):
     print(f"Batch {batch_idx}")
@@ -25,3 +33,4 @@ for batch_idx, batch in enumerate(dataloader):
     print(f"    SMILES mask: {batch['smiles_mask'].shape}")
     print(f"    Protein embedding: {batch['protein_embedding'].shape}")
     print(f"    Docking score: {batch['docking_score']}")
+    break
