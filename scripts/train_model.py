@@ -3,7 +3,7 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../src")))
 from utils import load_config
 from torch.utils.data import DataLoader
-from data.dataset import SmilesProteinDataset
+from data.dataset import get_dataloader
 from utils import load_config
 
 # load the configuration

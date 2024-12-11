@@ -118,27 +118,6 @@ class SmilesProteinDataset(Dataset):
         padded_embeddings[:, :token_embeddings.size(1), :] = token_embeddings
 
         return padded_embeddings, attention_mask
-    
-    
-def custom_colleate_fn(batch):
-    """
-    Custom collate function for the DataLoader.
-    """
-    smiles_list = [item["smiles"] for item in batch]
-    docking_scores = torch.stack([item["docking_score"] for item in batch])
-    protein_embeddings = torch.stack([item["protein_embedding"] for item in batch])
-    protein_masks = torch.stack([item["protein_mask"] for item in batch])
-
-    # Batch SMILES featurization
-    smiles_embeddings, smiles_mask = SmilesProteinDataset.featurize_smiles_static(smiles_list)
-
-    return {
-        "smiles_embedding": smiles_embeddings,
-        "smiles_mask": smiles_mask,
-        "protein_embedding": protein_embeddings,
-        "protein_mask": protein_masks,
-        "docking_score": docking_scores,
-    }
 
 def load_config(config_file):
     config_path = os.path.join('config', config_file)
