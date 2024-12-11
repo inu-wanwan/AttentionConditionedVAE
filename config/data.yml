@@ -1,3 +1,6 @@
 dataset:
   - smiles_max_len: 
   - protein_max_len:
+sample:
+  - smiles_max_len: 101
+  - protein_max_len:
