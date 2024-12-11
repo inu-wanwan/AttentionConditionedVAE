@@ -11,7 +11,7 @@ Defines the custom dataset class for the SMILES dataset.
 """
 
 class SmilesProteinDataset(Dataset):
-    def __init__(self, csv_file, alphafold_dir, smiles_colmn="Canonical_SMILES", 
+    def __init__(self, csv_file, smiles_max_len, protein_max_len, alphafold_dir="data/alphafold", smiles_colmn="Canonical_SMILES", 
                  protein_column="Protein", score_colmn="Docking_score"):
         """
         Args:
@@ -26,6 +26,10 @@ class SmilesProteinDataset(Dataset):
         self.smiles_colmn = smiles_colmn
         self.protein_column = protein_column
         self.score_colmn = score_colmn
+        self.smiles_max_len = smiles_max_len
+        self.protein_max_len = protein_max_len
+
+        # Load the mapping between target names and UniProt IDs
         uniprot_mapping_file = os.path.join("data", "DUD-E", "targets_pdb_ids.csv")
         mapping_df = pd.read_csv(uniprot_mapping_file)
         self.target_to_uniprot = mapping_df.set_index("Target")["UniProt ID"].to_dict()
@@ -33,40 +37,27 @@ class SmilesProteinDataset(Dataset):
     def __len__(self):
         return len(self.smiles_df)
     
-    def featurize_smiles(self, smiles_list):
+    def __getitem__(self, idx):
         """
-        SMILES のトークンごとの埋め込みを取得する関数
-        
-        Args:
-            - smiles_list (list): SMILESのリスト
-        Returns:
-            - torch.tensor: SMILESのトークンごとの埋め込み
-                Shape: (batch_size, max_seq_len, embedding_dim)
-            - torch.tensor: padding mask
-                Shape: (batch_size, max_seq_len)
+        Retrieve an item by idx
         """
-        # tokenizerの読み込み
-        tokenizer = AutoTokenizer.from_pretrained("DeepChem/ChemBERTa-77M-MLM")
-        # modelの読み込み
-        model = AutoModel.from_pretrained("DeepChem/ChemBERTa-77M-MLM")
-        # デバイスの設定
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        model.to(device)
+        row = self.smiles_df.iloc[idx]
+        smiles = row[self.smiles_colmn]
+        docking_score = row[self.score_colmn]
+        protein_id = row[self.protein_column]
 
-        # tokenization
-        encoded_inputs = tokenizer(smiles_list, padding=True, truncation=True, return_tensors="pt")
+        uniprot_id = self.get_uniprot_id(protein_id)
 
-        # デバイスに転送
-        input_ids = encoded_inputs["input_ids"].to(device)
-        attention_mask = encoded_inputs["attention_mask"].to(device)
+        protein_embedding, protein_mask = self.load_alphafold_embedding(uniprot_id)
 
-        with torch.no_grad():
-            outputs = model(input_ids, attention_mask=attention_mask)
+        docking_score = torch.tensor(docking_score, dtype=torch.float32)
 
-        # get token embeddings
-        token_embeddings = outputs.last_hidden_state
-
-        return token_embeddings, attention_mask
+        return {
+            "smiles": smiles,
+            "protein_embedding": protein_embedding,
+            "protein_mask": protein_mask,
+            "docking_score": docking_score,
+        }
     
     def get_uniprot_id(self, target):
         if target.upper() not in self.target_to_uniprot:
@@ -87,44 +78,67 @@ class SmilesProteinDataset(Dataset):
         if not os.path.exists(embedding_path):
             raise FileNotFoundError(f"Embedding file not found: {embedding_path}")
         embedding = np.load(embedding_path)
-        return torch.tensor(embedding, dtype=torch.float32)
+
+        embedding_tensor = torch.tensor(embedding, dtype=torch.float32)
+        padded_embedding = torch.zeros(self.protein_max_len, embedding_tensor.size(-1))
+        padded_embedding[:embedding_tensor.size(0), :] = embedding_tensor
+
+        # generate mask
+        attention_mask = torch.zeros(self.protein_max_len, dtype=torch.float32)
+        attention_mask[:embedding_tensor.size(0)] = 1
+
+        return padded_embedding, attention_mask
     
-    def __getitem__(self, idx):
+    @staticmethod
+    def featurize_smiles_static(smiles_list):
         """
-        Retrieve an item by idx
+        Static method for batch featurization of SMILES strings.
+        This allows featurization without an instance.
         """
-        row = self.smiles_df.iloc[idx]
-        smiles = row[self.smiles_colmn]
-        docking_score = row[self.score_colmn]
-        protein_id = row[self.protein_column]
+        # Load tokenizer and model
+        tokenizer = AutoTokenizer.from_pretrained("DeepChem/ChemBERTa-77M-MLM")
+        model = AutoModel.from_pretrained("DeepChem/ChemBERTa-77M-MLM")
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        model.to(device)
 
-        # get the corresponding uniprot id
-        try:
-            uniprot_id = self.get_uniprot_id(protein_id)
-        except KeyError:
-            raise KeyError(f"Protein name not found: {protein_id}")
-        
-        # get the SMILES embedding
-        try:
-            smiles_embedding, smiles_mask = self.featurize_smiles([smiles])
-        except ValueError:
-            raise ValueError(f"Error featurizing SMILES: {smiles}")
-        
-        # load the AlphaFold embedding
-        try:
-            protein_embedding = self.load_alphafold_embedding(uniprot_id)
-        except FileNotFoundError:
-            raise FileNotFoundError(f"Embedding file not found: {uniprot_id}")
-        
-        # Convert the docking score to a tensor
-        docking_score = torch.tensor(docking_score, dtype=torch.float32)
+        # Tokenization
+        encoded_inputs = tokenizer(smiles_list, padding=True, truncation=True, return_tensors="pt")
+        input_ids = encoded_inputs["input_ids"].to(device)
+        attention_mask = encoded_inputs["attention_mask"].to(device)
 
-        return {
-            "smiles_embedding": smiles_embedding,
-            "smiles_mask": smiles_mask,
-            "protein_embedding": protein_embedding,
-            "docking_score": docking_score,
-        }
+        # Model inference
+        with torch.no_grad():
+            outputs = model(input_ids, attention_mask=attention_mask)
+
+        # Pad embeddings to max_seq_len
+        token_embeddings = outputs.last_hidden_state
+        max_seq_len = input_ids.size(1)
+        embedding_dim = token_embeddings.size(-1)
+        padded_embeddings = torch.zeros(len(smiles_list), max_seq_len, embedding_dim, device=device)
+        padded_embeddings[:, :token_embeddings.size(1), :] = token_embeddings
+
+        return padded_embeddings, attention_mask
+    
+    
+def custom_colleate_fn(batch):
+    """
+    Custom collate function for the DataLoader.
+    """
+    smiles_list = [item["smiles"] for item in batch]
+    docking_scores = torch.stack([item["docking_score"] for item in batch])
+    protein_embeddings = torch.stack([item["protein_embedding"] for item in batch])
+    protein_masks = torch.stack([item["protein_mask"] for item in batch])
+
+    # Batch SMILES featurization
+    smiles_embeddings, smiles_mask = SmilesProteinDataset.featurize_smiles_static(smiles_list)
+
+    return {
+        "smiles_embedding": smiles_embeddings,
+        "smiles_mask": smiles_mask,
+        "protein_embedding": protein_embeddings,
+        "protein_mask": protein_masks,
+        "docking_score": docking_scores,
+    }
 
 def load_config(config_file):
     config_path = os.path.join('config', config_file)
