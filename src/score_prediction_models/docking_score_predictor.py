@@ -3,7 +3,7 @@ import torch.nn as nn
 from .transformer_block import TransformerBlock
 
 class DockingScorePredictor(nn.Module):
-    def __init__(self, embed_dim, num_heads, ffn_hidden_dim, num_transformer_blocks, smiles_max_len, regressor_hidden_dim=512, dropout=0.1):
+    def __init__(self, embed_dim, num_heads, ffn_hidden_dim, num_transformer_blocks, smiles_max_len=100, regressor_hidden_dim=512, dropout=0.1):
         super(DockingScorePredictor, self).__init__()
 
         self.transformer_blocks = nn.ModuleList([

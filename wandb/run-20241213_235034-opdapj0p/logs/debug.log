@@ -1,0 +1,26 @@
+2024-12-13 23:50:35,013 INFO    MainThread:27236 [wandb_setup.py:_flush():79] Current SDK version is 0.18.7
+2024-12-13 23:50:35,014 INFO    MainThread:27236 [wandb_setup.py:_flush():79] Configure stats pid to 27236
+2024-12-13 23:50:35,014 INFO    MainThread:27236 [wandb_setup.py:_flush():79] Loading settings from /home/rixyt/.config/wandb/settings
+2024-12-13 23:50:35,014 INFO    MainThread:27236 [wandb_setup.py:_flush():79] Loading settings from /mnt/c/Users/rixyt/workspace_eagle/sekijima_lab_local/AttentionConditionedVAE/wandb/settings
+2024-12-13 23:50:35,014 INFO    MainThread:27236 [wandb_setup.py:_flush():79] Loading settings from environment variables: {}
+2024-12-13 23:50:35,014 INFO    MainThread:27236 [wandb_setup.py:_flush():79] Applying setup settings: {'mode': None, '_disable_service': None}
+2024-12-13 23:50:35,015 INFO    MainThread:27236 [wandb_setup.py:_flush():79] Inferring run settings from compute environment: {'program_relpath': 'scripts/train_prediction_model.py', 'program_abspath': '/mnt/c/Users/rixyt/workspace_eagle/sekijima_lab_local/AttentionConditionedVAE/scripts/train_prediction_model.py', 'program': '/mnt/c/Users/rixyt/workspace_eagle/sekijima_lab_local/AttentionConditionedVAE/scripts/train_prediction_model.py'}
+2024-12-13 23:50:35,015 INFO    MainThread:27236 [wandb_setup.py:_flush():79] Applying login settings: {}
+2024-12-13 23:50:35,015 INFO    MainThread:27236 [wandb_init.py:_log_setup():533] Logging user logs to /mnt/c/Users/rixyt/workspace_eagle/sekijima_lab_local/AttentionConditionedVAE/wandb/run-20241213_235034-opdapj0p/logs/debug.log
+2024-12-13 23:50:35,015 INFO    MainThread:27236 [wandb_init.py:_log_setup():534] Logging internal logs to /mnt/c/Users/rixyt/workspace_eagle/sekijima_lab_local/AttentionConditionedVAE/wandb/run-20241213_235034-opdapj0p/logs/debug-internal.log
+2024-12-13 23:50:35,015 INFO    MainThread:27236 [wandb_init.py:init():619] calling init triggers
+2024-12-13 23:50:35,015 INFO    MainThread:27236 [wandb_init.py:init():626] wandb.init called with sweep_config: {}
+config: {'batch_size': 32, 'epochs': 10, 'lr': '1e-4'}
+2024-12-13 23:50:35,015 INFO    MainThread:27236 [wandb_init.py:init():669] starting backend
+2024-12-13 23:50:35,016 INFO    MainThread:27236 [wandb_init.py:init():673] sending inform_init request
+2024-12-13 23:50:35,017 INFO    MainThread:27236 [backend.py:_multiprocessing_setup():104] multiprocessing start_methods=fork,spawn,forkserver, using: spawn
+2024-12-13 23:50:35,017 INFO    MainThread:27236 [wandb_init.py:init():686] backend started and connected
+2024-12-13 23:50:35,022 INFO    MainThread:27236 [wandb_init.py:init():781] updated telemetry
+2024-12-13 23:50:35,056 INFO    MainThread:27236 [wandb_init.py:init():814] communicating run to backend with 90.0 second timeout
+2024-12-13 23:50:38,496 INFO    MainThread:27236 [wandb_init.py:init():867] starting run threads in backend
+2024-12-13 23:50:38,547 INFO    MainThread:27236 [wandb_run.py:_console_start():2456] atexit reg
+2024-12-13 23:50:38,548 INFO    MainThread:27236 [wandb_run.py:_redirect():2305] redirect: wrap_raw
+2024-12-13 23:50:38,548 INFO    MainThread:27236 [wandb_run.py:_redirect():2370] Wrapping output streams.
+2024-12-13 23:50:38,548 INFO    MainThread:27236 [wandb_run.py:_redirect():2395] Redirects installed.
+2024-12-13 23:50:38,549 INFO    MainThread:27236 [wandb_init.py:init():911] run started, returning control to user process
+2024-12-13 23:50:39,610 WARNING MsgRouterThr:27236 [router.py:message_loop():75] message_loop has been closed

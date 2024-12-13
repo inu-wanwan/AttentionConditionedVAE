@@ -1,0 +1,16 @@
+{"time":"2024-12-14T01:34:58.936863613+09:00","level":"INFO","msg":"using version","core version":"0.18.7"}
+{"time":"2024-12-14T01:34:58.937113118+09:00","level":"INFO","msg":"created symlink","path":"/mnt/c/Users/rixyt/workspace_eagle/sekijima_lab_local/AttentionConditionedVAE/wandb/run-20241214_013458-16roovys/logs/debug-core.log"}
+{"time":"2024-12-14T01:34:59.161611811+09:00","level":"INFO","msg":"created new stream","id":"16roovys"}
+{"time":"2024-12-14T01:34:59.161703134+09:00","level":"INFO","msg":"stream: started","id":"16roovys"}
+{"time":"2024-12-14T01:34:59.16171479+09:00","level":"INFO","msg":"handler: started","stream_id":"16roovys"}
+{"time":"2024-12-14T01:34:59.16213839+09:00","level":"INFO","msg":"sender: started","stream_id":"16roovys"}
+{"time":"2024-12-14T01:34:59.162114326+09:00","level":"INFO","msg":"writer: Do: started","stream_id":"16roovys"}
+{"time":"2024-12-14T01:34:59.554849383+09:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2024-12-14T01:35:15.457381462+09:00","level":"INFO","msg":"stream: closing","id":"16roovys"}
+{"time":"2024-12-14T01:35:15.457437721+09:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2024-12-14T01:35:15.458198662+09:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2024-12-14T01:35:16.604360346+09:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2024-12-14T01:35:16.916020704+09:00","level":"INFO","msg":"handler: closed","stream_id":"16roovys"}
+{"time":"2024-12-14T01:35:16.916155243+09:00","level":"INFO","msg":"writer: Close: closed","stream_id":"16roovys"}
+{"time":"2024-12-14T01:35:16.916260586+09:00","level":"INFO","msg":"sender: closed","stream_id":"16roovys"}
+{"time":"2024-12-14T01:35:16.918986756+09:00","level":"INFO","msg":"stream: closed","id":"16roovys"}

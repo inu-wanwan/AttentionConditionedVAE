@@ -1,0 +1,55 @@
+Epoch 1 / 10 Train:   0%|                 | 0/14052 [00:00<?, ?it/s]Some weights of RobertaModel were not initialized from the model checkpoint at DeepChem/ChemBERTa-77M-MLM and are newly initialized: ['roberta.pooler.dense.bias', 'roberta.pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+Epoch 1 / 10 Train:   0%|                 | 0/14052 [00:03<?, ?it/s]
+Traceback (most recent call last):
+  File "/mnt/c/Users/rixyt/workspace_eagle/sekijima_lab_local/AttentionConditionedVAE/scripts/train_prediction_model.py", line 126, in <module>
+    train()
+  File "/mnt/c/Users/rixyt/workspace_eagle/sekijima_lab_local/AttentionConditionedVAE/scripts/train_prediction_model.py", line 84, in train
+    docking_score_pred = model(smiles_embedding, af2_embedding, smiles_mask, af2_mask)
+  File "/home/rixyt/miniconda3/envs/atcvae/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/rixyt/miniconda3/envs/atcvae/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/mnt/c/Users/rixyt/workspace_eagle/sekijima_lab_local/AttentionConditionedVAE/src/score_prediction_models/docking_score_predictor.py", line 26, in forward
+    smiles_embedding = block(smiles_embedding, af2_embedding, smiles_mask, af2_mask)
+  File "/home/rixyt/miniconda3/envs/atcvae/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/rixyt/miniconda3/envs/atcvae/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/mnt/c/Users/rixyt/workspace_eagle/sekijima_lab_local/AttentionConditionedVAE/src/score_prediction_models/transformer_block.py", line 33, in forward
+    self_attn_output, _ = self.self_attn(query=smiles_embedding,
+  File "/home/rixyt/miniconda3/envs/atcvae/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/rixyt/miniconda3/envs/atcvae/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/rixyt/miniconda3/envs/atcvae/lib/python3.10/site-packages/torch/nn/modules/activation.py", line 1368, in forward
+    attn_output, attn_output_weights = F.multi_head_attention_forward(
+  File "/home/rixyt/miniconda3/envs/atcvae/lib/python3.10/site-packages/torch/nn/functional.py", line 6138, in multi_head_attention_forward
+    raise RuntimeError(
+RuntimeError: The shape of the 3D attn_mask is torch.Size([32, 100, 1390]), but should be (192, 100, 100).
+Traceback (most recent call last):
+  File "/mnt/c/Users/rixyt/workspace_eagle/sekijima_lab_local/AttentionConditionedVAE/scripts/train_prediction_model.py", line 126, in <module>
+    train()
+  File "/mnt/c/Users/rixyt/workspace_eagle/sekijima_lab_local/AttentionConditionedVAE/scripts/train_prediction_model.py", line 84, in train
+    docking_score_pred = model(smiles_embedding, af2_embedding, smiles_mask, af2_mask)
+  File "/home/rixyt/miniconda3/envs/atcvae/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/rixyt/miniconda3/envs/atcvae/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/mnt/c/Users/rixyt/workspace_eagle/sekijima_lab_local/AttentionConditionedVAE/src/score_prediction_models/docking_score_predictor.py", line 26, in forward
+    smiles_embedding = block(smiles_embedding, af2_embedding, smiles_mask, af2_mask)
+  File "/home/rixyt/miniconda3/envs/atcvae/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/rixyt/miniconda3/envs/atcvae/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/mnt/c/Users/rixyt/workspace_eagle/sekijima_lab_local/AttentionConditionedVAE/src/score_prediction_models/transformer_block.py", line 33, in forward
+    self_attn_output, _ = self.self_attn(query=smiles_embedding,
+  File "/home/rixyt/miniconda3/envs/atcvae/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/rixyt/miniconda3/envs/atcvae/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/rixyt/miniconda3/envs/atcvae/lib/python3.10/site-packages/torch/nn/modules/activation.py", line 1368, in forward
+    attn_output, attn_output_weights = F.multi_head_attention_forward(
+  File "/home/rixyt/miniconda3/envs/atcvae/lib/python3.10/site-packages/torch/nn/functional.py", line 6138, in multi_head_attention_forward
+    raise RuntimeError(
+RuntimeError: The shape of the 3D attn_mask is torch.Size([32, 100, 1390]), but should be (192, 100, 100).

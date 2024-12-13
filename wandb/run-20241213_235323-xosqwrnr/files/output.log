@@ -1,0 +1,71 @@
+Epoch 1 / 10 Train:   0%|                 | 0/14052 [00:00<?, ?it/s]
+Traceback (most recent call last):
+  File "/home/rixyt/miniconda3/envs/atcvae/lib/python3.10/site-packages/pandas/core/indexes/base.py", line 3805, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7081, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7089, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'Protein'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/mnt/c/Users/rixyt/workspace_eagle/sekijima_lab_local/AttentionConditionedVAE/scripts/train_prediction_model.py", line 126, in <module>
+    train()
+  File "/mnt/c/Users/rixyt/workspace_eagle/sekijima_lab_local/AttentionConditionedVAE/scripts/train_prediction_model.py", line 75, in train
+    for smiles_embedding, af2_embedding, smiles_mask, af2_mask, docking_score in train_pbar:
+  File "/home/rixyt/miniconda3/envs/atcvae/lib/python3.10/site-packages/tqdm/std.py", line 1181, in __iter__
+    for obj in iterable:
+  File "/home/rixyt/miniconda3/envs/atcvae/lib/python3.10/site-packages/torch/utils/data/dataloader.py", line 701, in __next__
+    data = self._next_data()
+  File "/home/rixyt/miniconda3/envs/atcvae/lib/python3.10/site-packages/torch/utils/data/dataloader.py", line 757, in _next_data
+    data = self._dataset_fetcher.fetch(index)  # may raise StopIteration
+  File "/home/rixyt/miniconda3/envs/atcvae/lib/python3.10/site-packages/torch/utils/data/_utils/fetch.py", line 52, in fetch
+    data = [self.dataset[idx] for idx in possibly_batched_index]
+  File "/home/rixyt/miniconda3/envs/atcvae/lib/python3.10/site-packages/torch/utils/data/_utils/fetch.py", line 52, in <listcomp>
+    data = [self.dataset[idx] for idx in possibly_batched_index]
+  File "/mnt/c/Users/rixyt/workspace_eagle/sekijima_lab_local/AttentionConditionedVAE/src/data/dataset.py", line 47, in __getitem__
+    protein_id = row[self.protein_column]
+  File "/home/rixyt/miniconda3/envs/atcvae/lib/python3.10/site-packages/pandas/core/series.py", line 1121, in __getitem__
+    return self._get_value(key)
+  File "/home/rixyt/miniconda3/envs/atcvae/lib/python3.10/site-packages/pandas/core/series.py", line 1237, in _get_value
+    loc = self.index.get_loc(label)
+  File "/home/rixyt/miniconda3/envs/atcvae/lib/python3.10/site-packages/pandas/core/indexes/base.py", line 3812, in get_loc
+    raise KeyError(key) from err
+KeyError: 'Protein'
+Traceback (most recent call last):
+  File "/home/rixyt/miniconda3/envs/atcvae/lib/python3.10/site-packages/pandas/core/indexes/base.py", line 3805, in get_loc
+    return self._engine.get_loc(casted_key)
+  File "index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7081, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7089, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'Protein'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/mnt/c/Users/rixyt/workspace_eagle/sekijima_lab_local/AttentionConditionedVAE/scripts/train_prediction_model.py", line 126, in <module>
+    train()
+  File "/mnt/c/Users/rixyt/workspace_eagle/sekijima_lab_local/AttentionConditionedVAE/scripts/train_prediction_model.py", line 75, in train
+    for smiles_embedding, af2_embedding, smiles_mask, af2_mask, docking_score in train_pbar:
+  File "/home/rixyt/miniconda3/envs/atcvae/lib/python3.10/site-packages/tqdm/std.py", line 1181, in __iter__
+    for obj in iterable:
+  File "/home/rixyt/miniconda3/envs/atcvae/lib/python3.10/site-packages/torch/utils/data/dataloader.py", line 701, in __next__
+    data = self._next_data()
+  File "/home/rixyt/miniconda3/envs/atcvae/lib/python3.10/site-packages/torch/utils/data/dataloader.py", line 757, in _next_data
+    data = self._dataset_fetcher.fetch(index)  # may raise StopIteration
+  File "/home/rixyt/miniconda3/envs/atcvae/lib/python3.10/site-packages/torch/utils/data/_utils/fetch.py", line 52, in fetch
+    data = [self.dataset[idx] for idx in possibly_batched_index]
+  File "/home/rixyt/miniconda3/envs/atcvae/lib/python3.10/site-packages/torch/utils/data/_utils/fetch.py", line 52, in <listcomp>
+    data = [self.dataset[idx] for idx in possibly_batched_index]
+  File "/mnt/c/Users/rixyt/workspace_eagle/sekijima_lab_local/AttentionConditionedVAE/src/data/dataset.py", line 47, in __getitem__
+    protein_id = row[self.protein_column]
+  File "/home/rixyt/miniconda3/envs/atcvae/lib/python3.10/site-packages/pandas/core/series.py", line 1121, in __getitem__
+    return self._get_value(key)
+  File "/home/rixyt/miniconda3/envs/atcvae/lib/python3.10/site-packages/pandas/core/series.py", line 1237, in _get_value
+    loc = self.index.get_loc(label)
+  File "/home/rixyt/miniconda3/envs/atcvae/lib/python3.10/site-packages/pandas/core/indexes/base.py", line 3812, in get_loc
+    raise KeyError(key) from err
+KeyError: 'Protein'

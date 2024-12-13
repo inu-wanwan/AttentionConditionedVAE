@@ -1,0 +1,15 @@
+Epoch 1 / 10 Train:   0%|                 | 0/14052 [00:00<?, ?it/s]Some weights of RobertaModel were not initialized from the model checkpoint at DeepChem/ChemBERTa-77M-MLM and are newly initialized: ['roberta.pooler.dense.bias', 'roberta.pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+Epoch 1 / 10 Train:   0%|                 | 0/14052 [00:01<?, ?it/s]
+Traceback (most recent call last):
+  File "/mnt/c/Users/rixyt/workspace_eagle/sekijima_lab_local/AttentionConditionedVAE/scripts/train_prediction_model.py", line 126, in <module>
+    train()
+  File "/mnt/c/Users/rixyt/workspace_eagle/sekijima_lab_local/AttentionConditionedVAE/scripts/train_prediction_model.py", line 76, in train
+    smiles_embedding = smiles_embedding.cuda()
+AttributeError: 'str' object has no attribute 'cuda'
+Traceback (most recent call last):
+  File "/mnt/c/Users/rixyt/workspace_eagle/sekijima_lab_local/AttentionConditionedVAE/scripts/train_prediction_model.py", line 126, in <module>
+    train()
+  File "/mnt/c/Users/rixyt/workspace_eagle/sekijima_lab_local/AttentionConditionedVAE/scripts/train_prediction_model.py", line 76, in train
+    smiles_embedding = smiles_embedding.cuda()
+AttributeError: 'str' object has no attribute 'cuda'

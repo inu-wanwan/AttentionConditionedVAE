@@ -1,0 +1,16 @@
+{"time":"2024-12-14T00:28:29.721148325+09:00","level":"INFO","msg":"using version","core version":"0.18.7"}
+{"time":"2024-12-14T00:28:29.721259627+09:00","level":"INFO","msg":"created symlink","path":"/mnt/c/Users/rixyt/workspace_eagle/sekijima_lab_local/AttentionConditionedVAE/wandb/run-20241214_002829-1363vscd/logs/debug-core.log"}
+{"time":"2024-12-14T00:28:29.940065031+09:00","level":"INFO","msg":"created new stream","id":"1363vscd"}
+{"time":"2024-12-14T00:28:29.940148299+09:00","level":"INFO","msg":"stream: started","id":"1363vscd"}
+{"time":"2024-12-14T00:28:29.940189158+09:00","level":"INFO","msg":"handler: started","stream_id":"1363vscd"}
+{"time":"2024-12-14T00:28:29.940537533+09:00","level":"INFO","msg":"writer: Do: started","stream_id":"1363vscd"}
+{"time":"2024-12-14T00:28:29.940562507+09:00","level":"INFO","msg":"sender: started","stream_id":"1363vscd"}
+{"time":"2024-12-14T00:28:31.293822406+09:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2024-12-14T00:28:33.740879672+09:00","level":"INFO","msg":"stream: closing","id":"1363vscd"}
+{"time":"2024-12-14T00:28:33.740934793+09:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2024-12-14T00:28:33.742182335+09:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2024-12-14T00:28:34.649096899+09:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2024-12-14T00:28:34.972461067+09:00","level":"INFO","msg":"handler: closed","stream_id":"1363vscd"}
+{"time":"2024-12-14T00:28:34.972584494+09:00","level":"INFO","msg":"writer: Close: closed","stream_id":"1363vscd"}
+{"time":"2024-12-14T00:28:34.972774077+09:00","level":"INFO","msg":"sender: closed","stream_id":"1363vscd"}
+{"time":"2024-12-14T00:28:34.974688593+09:00","level":"INFO","msg":"stream: closed","id":"1363vscd"}

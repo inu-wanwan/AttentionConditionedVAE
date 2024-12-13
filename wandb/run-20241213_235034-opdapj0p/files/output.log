@@ -1,0 +1,17 @@
+1e-4
+Traceback (most recent call last):
+  File "/mnt/c/Users/rixyt/workspace_eagle/sekijima_lab_local/AttentionConditionedVAE/scripts/train_prediction_model.py", line 127, in <module>
+    train()
+  File "/mnt/c/Users/rixyt/workspace_eagle/sekijima_lab_local/AttentionConditionedVAE/scripts/train_prediction_model.py", line 70, in train
+    optimizer = optim.Adam(model.parameters(), lr=lr)
+  File "/home/rixyt/miniconda3/envs/atcvae/lib/python3.10/site-packages/torch/optim/adam.py", line 55, in __init__
+    if not 0.0 <= lr:
+TypeError: '<=' not supported between instances of 'float' and 'str'
+Traceback (most recent call last):
+  File "/mnt/c/Users/rixyt/workspace_eagle/sekijima_lab_local/AttentionConditionedVAE/scripts/train_prediction_model.py", line 127, in <module>
+    train()
+  File "/mnt/c/Users/rixyt/workspace_eagle/sekijima_lab_local/AttentionConditionedVAE/scripts/train_prediction_model.py", line 70, in train
+    optimizer = optim.Adam(model.parameters(), lr=lr)
+  File "/home/rixyt/miniconda3/envs/atcvae/lib/python3.10/site-packages/torch/optim/adam.py", line 55, in __init__
+    if not 0.0 <= lr:
+TypeError: '<=' not supported between instances of 'float' and 'str'

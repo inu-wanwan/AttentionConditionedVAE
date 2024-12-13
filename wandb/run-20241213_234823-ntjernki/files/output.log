@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "/mnt/c/Users/rixyt/workspace_eagle/sekijima_lab_local/AttentionConditionedVAE/scripts/train_prediction_model.py", line 126, in <module>
+    train()
+  File "/mnt/c/Users/rixyt/workspace_eagle/sekijima_lab_local/AttentionConditionedVAE/scripts/train_prediction_model.py", line 62, in train
+    num_transformer_blocks=model_config['num_transformer_blocks'],
+KeyError: 'num_transformer_blocks'
+Traceback (most recent call last):
+  File "/mnt/c/Users/rixyt/workspace_eagle/sekijima_lab_local/AttentionConditionedVAE/scripts/train_prediction_model.py", line 126, in <module>
+    train()
+  File "/mnt/c/Users/rixyt/workspace_eagle/sekijima_lab_local/AttentionConditionedVAE/scripts/train_prediction_model.py", line 62, in train
+    num_transformer_blocks=model_config['num_transformer_blocks'],
+KeyError: 'num_transformer_blocks'

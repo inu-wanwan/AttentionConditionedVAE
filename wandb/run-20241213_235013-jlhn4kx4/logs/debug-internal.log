@@ -1,0 +1,16 @@
+{"time":"2024-12-13T23:50:13.180130349+09:00","level":"INFO","msg":"using version","core version":"0.18.7"}
+{"time":"2024-12-13T23:50:13.180250573+09:00","level":"INFO","msg":"created symlink","path":"/mnt/c/Users/rixyt/workspace_eagle/sekijima_lab_local/AttentionConditionedVAE/wandb/run-20241213_235013-jlhn4kx4/logs/debug-core.log"}
+{"time":"2024-12-13T23:50:13.29441962+09:00","level":"INFO","msg":"created new stream","id":"jlhn4kx4"}
+{"time":"2024-12-13T23:50:13.29451882+09:00","level":"INFO","msg":"stream: started","id":"jlhn4kx4"}
+{"time":"2024-12-13T23:50:13.294619509+09:00","level":"INFO","msg":"handler: started","stream_id":"jlhn4kx4"}
+{"time":"2024-12-13T23:50:13.294550211+09:00","level":"INFO","msg":"sender: started","stream_id":"jlhn4kx4"}
+{"time":"2024-12-13T23:50:13.294537488+09:00","level":"INFO","msg":"writer: Do: started","stream_id":"jlhn4kx4"}
+{"time":"2024-12-13T23:50:16.66713336+09:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2024-12-13T23:50:16.758399047+09:00","level":"INFO","msg":"stream: closing","id":"jlhn4kx4"}
+{"time":"2024-12-13T23:50:16.758483634+09:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2024-12-13T23:50:16.760068565+09:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2024-12-13T23:50:18.360519132+09:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2024-12-13T23:50:18.646760635+09:00","level":"INFO","msg":"handler: closed","stream_id":"jlhn4kx4"}
+{"time":"2024-12-13T23:50:18.646782662+09:00","level":"INFO","msg":"writer: Close: closed","stream_id":"jlhn4kx4"}
+{"time":"2024-12-13T23:50:18.646792357+09:00","level":"INFO","msg":"sender: closed","stream_id":"jlhn4kx4"}
+{"time":"2024-12-13T23:50:18.647763416+09:00","level":"INFO","msg":"stream: closed","id":"jlhn4kx4"}
