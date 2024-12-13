@@ -1,0 +1,4 @@
+sample_model:
+  batch_size: 32
+  epochs: 10
+  lr: 1e-4

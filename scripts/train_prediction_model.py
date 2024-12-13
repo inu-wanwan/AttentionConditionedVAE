@@ -1,15 +1,15 @@
 import sys
 import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../src")))
 from utils import load_config
 from torch.utils.data import DataLoader
 from src.data.dataloader import get_dataloader
-from utils import load_config
+from src.score_prediction_models.docking_score_predictor import DockingScorePredictor
 
 # load the configuration
 file_config = load_config('filepath.yml')
 data_config = load_config('data.yml')
 model_config = load_config('model.yml')
+
 
 alphafold_dir = file_config['data']['alphafold']
 data_dir = file_config['data']['samples']
