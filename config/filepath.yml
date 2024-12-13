@@ -1,8 +1,13 @@
 data:
   DUD-E: "./data/DUD-E"
   alphafold: "./data/alphafold"
+  protein: "./data/protein"
   preprocessed: "./data/preprocessed"
   smiles: "./data/smiles"
   output: "./data/output"
   hist: "./data/hist"
   samples: "./data/samples"
+  debug: "./data/debug"
+  train: "./data/train"
+  test: "./data/test"
+  val: "./data/val"
