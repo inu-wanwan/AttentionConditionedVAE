@@ -31,6 +31,9 @@ for batch_idx, batch in enumerate(dataloader):
     print(f"Batch {batch_idx}")
     print(f"    SMILES: {batch['smiles_embedding'].shape}")
     print(f"    SMILES mask: {batch['smiles_mask'].shape}")
+    print(f"    SMILES mask: {batch['smiles_mask'][0]}")
     print(f"    Protein embedding: {batch['protein_embedding'].shape}")
+    print(f"    Protein mask: {batch['protein_mask'].shape}")
+    print(f"    Protein mask; {batch['protein_mask'][0]}")
     print(f"    Docking score: {batch['docking_score']}")
     break
