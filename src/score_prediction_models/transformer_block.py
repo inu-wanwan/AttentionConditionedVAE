@@ -7,11 +7,11 @@ class TransformerBlock(nn.Module):
         
         self.num_heads = num_heads
         # self attention
-        self.self_attn = nn.MultiheadAttention(embed_dim=embed_dim, num_heads=num_heads, dropout=dropout, batch_first=True)
+        self.self_attn = nn.MultiheadAttention(embed_dim=embed_dim, num_heads=num_heads, dropout=dropout, batch_first=True, bias=False)
         self.self_attn_layer_norm = nn.LayerNorm(embed_dim)
 
         # cross attention
-        self.cross_attn = nn.MultiheadAttention(embed_dim=embed_dim, num_heads=num_heads, dropout=dropout, batch_first=True)
+        self.cross_attn = nn.MultiheadAttention(embed_dim=embed_dim, num_heads=num_heads, dropout=dropout, batch_first=True, bias=False)
         self.cross_attn_layer_norm = nn.LayerNorm(embed_dim)
 
         # feedforward
@@ -27,14 +27,18 @@ class TransformerBlock(nn.Module):
         """
         Forward pass for the TransformerBlock.
         """
+        # prepare key padding mask
+        smiles_key_padding_mask = self._prepare_key_padding_mask(smiles_mask)
+        af2_key_padding_mask = self._prepare_key_padding_mask(af2_mask)
+
         # prepare self attention mask
         self_attn_mask = self._prepare_attention_mask(smiles_mask, smiles_mask, self.num_heads) 
 
         # self attention
-        self_attn_output, _ = self.self_attn(query=smiles_embedding,
+        self_attn_output, weight = self.self_attn(query=smiles_embedding,
                                              key=smiles_embedding,
                                              value=smiles_embedding, 
-                                             attn_mask=self_attn_mask)
+                                             )
         self_attn_output = self.self_attn_layer_norm(self_attn_output + smiles_embedding)
 
         # prepare cross attention mask
@@ -44,14 +48,28 @@ class TransformerBlock(nn.Module):
         cross_attn_output, _ = self.cross_attn(query=self_attn_output, 
                                                key=af2_embedding, 
                                                value=af2_embedding, 
-                                               attn_mask=cross_attn_mask)
+                                               )
         cross_attn_output = self.cross_attn_layer_norm(cross_attn_output + self_attn_output)
 
         # feedforward
         ffn_output = self.ffn(cross_attn_output)
         output = self.ffn_layer_norm(ffn_output + cross_attn_output)
 
+        output = torch.nan_to_num(output, nan=0.0)
+
         return output
+    
+    def _prepare_key_padding_mask(self, mask):
+        """
+        Prepare key padding mask for MultiheadAttention.
+        
+        Args:
+            mask (torch.Tensor): Mask for embeddings, shape (N, L).
+        
+        Returns:
+            (N, L). value 0, 1 -> True, False
+        """
+        return ~mask.bool()
     
     def _prepare_attention_mask(self, query_mask, key_mask, num_heads):
         """
@@ -67,12 +85,9 @@ class TransformerBlock(nn.Module):
             value 0, 1 -> True, False
         """
         combined_mask = query_mask.unsqueeze(2) * key_mask.unsqueeze(1)
-        attn_mask = torch.where(
-            combined_mask > 0,
-            torch.tensor(False, device=combined_mask.device),
-            torch.tensor(True, device=combined_mask.device),
-        )
+        
+        attn_mask = ~combined_mask.bool()
 
-        attn_mask = attn_mask.repeat_interleave(num_heads, dim=0)
-
+        batch_size, L_query, L_key = attn_mask.shape
+        attn_mask = attn_mask.unsqueeze(1).expand(batch_size, num_heads, L_query, L_key).reshape(batch_size * num_heads, L_query, L_key)
         return attn_mask

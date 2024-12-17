@@ -5,10 +5,19 @@ import yaml
 import numpy as np
 from torch.utils.data import Dataset
 from transformers import AutoTokenizer, AutoModel
+import logging 
+from transformers import logging as transformers_logging
 """
 dataset.py
 Defines the custom dataset class for the SMILES dataset.
 """
+
+# Set logging level to ERROR to avoid unnecessary outputs
+
+transformers_logging.set_verbosity_error()
+logging.getLogger("transformers").setLevel(logging.ERROR)
+
+os.environ["TOKENIZERS_PARALLELISM"] = "true"
 
 class SmilesProteinDataset(Dataset):
     def __init__(self, csv_file, smiles_max_len, protein_max_len, alphafold_dir="data/alphafold", smiles_colmn="Canonical_SMILES", 

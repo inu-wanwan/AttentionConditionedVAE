@@ -10,6 +10,11 @@ from utils import load_config
 from src.data.dataloader import get_dataloader
 from src.score_prediction_models.docking_score_predictor import DockingScorePredictor
 
+def check_for_nan(tensor, name):
+    if torch.isnan(tensor).any():
+        print(tensor)
+        raise ValueError(f"NaN found in {name}")
+
 def train():
     """
     Train the docking score prediction model.
@@ -85,15 +90,15 @@ def train():
             loss = criterion(docking_score_pred.squeeze(), docking_score)
 
             # back propagation
+            torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
             loss.backward()
             optimizer.step()
 
             train_loss += loss.item()
             train_pbar.set_postfix({'loss': loss.item()})
+            wandb.log({'train_batch_loss': loss.item() / batch_size}) 
 
-        # wandb logging per epoch
-        train_loss /= len(train_dataloader)
-        wandb.log({'train_loss': train_loss})
+        wandb.log({'train_loss': train_loss / len(train_dataloader)})
 
         # validation
         model.eval()

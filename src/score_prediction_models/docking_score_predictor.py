@@ -12,7 +12,7 @@ class DockingScorePredictor(nn.Module):
         ])
 
         self.regressor = nn.Sequential(
-            nn.Linear(embed_dim * smiles_max_len, regressor_hidden_dim),
+            nn.Linear(embed_dim * smiles_max_len, regressor_hidden_dim, bias=False),
             nn.ReLU(),
             nn.Linear(regressor_hidden_dim, 1),
         )

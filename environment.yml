@@ -21,3 +21,4 @@ dependencies:
     - wget
     - beautifulsoup4
     - transformers
+    - torchviz
