@@ -9,6 +9,7 @@ from tqdm import tqdm
 from utils import load_config
 from src.data.dataloader import get_dataloader
 from src.score_prediction_models.docking_score_predictor import DockingScorePredictor
+from datetime import datetime
 
 def check_for_nan(tensor, name):
     if torch.isnan(tensor).any():
@@ -31,6 +32,7 @@ def train():
     # directories
     alphafold_dir = file_config['data']['alphafold']
     data_dir = file_config['data']['samples']
+    model_save_dir = file_config['model']
 
     # data files
     train_file = os.path.join(file_config['data']['train'], 'train.csv')
@@ -95,7 +97,7 @@ def train():
             optimizer.step()
 
             train_loss += loss.item()
-            train_pbar.set_postfix({'loss': loss.item()})
+            train_pbar.set_postfix({'loss': loss.item() / batch_size})
             wandb.log({'train_batch_loss': loss.item() / batch_size}) 
 
         wandb.log({'train_loss': train_loss / len(train_dataloader)})
@@ -104,26 +106,27 @@ def train():
         model.eval()
         val_loss = 0.0
         val_pbar = tqdm(val_dataloader, desc=f"Epoch {epoch + 1} / {epochs} Val")
-        with torch.no_grad():
-            for smiles_embedding, af2_embedding, smiles_mask, af2_mask, docking_score in val_pbar:
-                smiles_embedding = smiles_embedding.cuda()
-                af2_embedding = af2_embedding.cuda()
-                smiles_mask = smiles_mask.cuda()
-                af2_mask = af2_mask.cuda()
-                docking_score = docking_score.cuda()
+        for _, batch in enumerate(val_pbar):
+            with torch.no_grad():
+                smiles_embedding = batch['smiles_embedding'].cuda()
+                af2_embedding = batch['protein_embedding'].cuda()
+                smiles_mask = batch['smiles_mask'].cuda()
+                af2_mask = batch['protein_mask'].cuda()
+                docking_score = batch['docking_score'].cuda()
 
                 docking_score_pred = model(smiles_embedding, af2_embedding, smiles_mask, af2_mask)
                 loss = criterion(docking_score_pred.squeeze(), docking_score)
 
                 val_loss += loss.item()
-                val_pbar.set_postfix({'loss': loss.item()})
-
+                val_pbar.set_postfix({'loss': loss.item() / batch_size})
+                wandb.log({'val_batch_loss': loss.item() / batch_size})
         val_loss /= len(val_dataloader)
         wandb.log({'val_loss': val_loss})
         print(f"Epoch {epoch + 1} / {epochs} | Train Loss: {train_loss:.4f} | Val Loss: {val_loss:.4f}")
 
     # save the model
-    torch.save(model.state_dict(), "docking_score_predictor.pth")
+    current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    torch.save(model.state_dict(), os.path.join(model_save_dir, f"model_{current_time}.pth"))
     wandb.save("docking_score_predictor.pth")
     print("Model saved to docking_score_predictor.pth")
 
