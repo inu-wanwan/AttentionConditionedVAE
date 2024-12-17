@@ -27,22 +27,12 @@ class TransformerBlock(nn.Module):
         """
         Forward pass for the TransformerBlock.
         """
-        # prepare key padding mask
-        smiles_key_padding_mask = self._prepare_key_padding_mask(smiles_mask)
-        af2_key_padding_mask = self._prepare_key_padding_mask(af2_mask)
-
-        # prepare self attention mask
-        self_attn_mask = self._prepare_attention_mask(smiles_mask, smiles_mask, self.num_heads) 
-
         # self attention
-        self_attn_output, weight = self.self_attn(query=smiles_embedding,
+        self_attn_output, _ = self.self_attn(query=smiles_embedding,
                                              key=smiles_embedding,
                                              value=smiles_embedding, 
                                              )
         self_attn_output = self.self_attn_layer_norm(self_attn_output + smiles_embedding)
-
-        # prepare cross attention mask
-        cross_attn_mask = self._prepare_attention_mask(smiles_mask, af2_mask, num_heads=self.num_heads)
 
         # cross attention
         cross_attn_output, _ = self.cross_attn(query=self_attn_output, 
@@ -59,35 +49,3 @@ class TransformerBlock(nn.Module):
 
         return output
     
-    def _prepare_key_padding_mask(self, mask):
-        """
-        Prepare key padding mask for MultiheadAttention.
-        
-        Args:
-            mask (torch.Tensor): Mask for embeddings, shape (N, L).
-        
-        Returns:
-            (N, L). value 0, 1 -> True, False
-        """
-        return ~mask.bool()
-    
-    def _prepare_attention_mask(self, query_mask, key_mask, num_heads):
-        """
-        Prepare an attention mask for MultiheadAttention.
-        
-        Args:
-            quert_mask (torch.Tensor): Mask for Query embeddings, shape (N, L_query).
-            key_mask (torch.Tensor): Mask for Key embeddings, shape (N, L_key).
-            num_heads (int): Number of attention heads.
-        
-        Returns:
-            (N * num_heads, L_query, L_key). 
-            value 0, 1 -> True, False
-        """
-        combined_mask = query_mask.unsqueeze(2) * key_mask.unsqueeze(1)
-        
-        attn_mask = ~combined_mask.bool()
-
-        batch_size, L_query, L_key = attn_mask.shape
-        attn_mask = attn_mask.unsqueeze(1).expand(batch_size, num_heads, L_query, L_key).reshape(batch_size * num_heads, L_query, L_key)
-        return attn_mask

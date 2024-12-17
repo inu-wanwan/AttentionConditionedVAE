@@ -41,15 +41,21 @@ dataset['ClusterID'] = dataset['PDB ID'].map(cluster_dict)
 train_set = []
 val_set = []
 test_set = []
+pdb_id_train = []
+pdb_id_val = []
+pdb_id_test = []
 
 for cluster_id, group in dataset.groupby('ClusterID'):
     rand_num = random.random()
     if rand_num < 0.8:
         train_set.append(group)
+        pdb_id_train.append(group['PDB ID'].unique())
     elif rand_num < 0.9:
         val_set.append(group)
+        pdb_id_val.append(group['PDB ID'].unique())
     else:
         test_set.append(group)
+        pdb_id_test.append(group['PDB ID'].unique())
        
 
 train_set = pd.concat(train_set, ignore_index=True)
@@ -60,6 +66,15 @@ test_set = pd.concat(test_set, ignore_index=True)
 train_set.to_csv(os.path.join(train_dir, 'train.csv'), index=False)
 val_set.to_csv(os.path.join(val_dir, 'val.csv'), index=False)
 test_set.to_csv(os.path.join(test_dir, 'test.csv'), index=False)
+
+# save the pdb ids
+pdb_id_train = pd.DataFrame(pdb_id_train)
+pdb_id_val = pd.DataFrame(pdb_id_val)
+pdb_id_test = pd.DataFrame(pdb_id_test)
+
+pdb_id_train.to_csv(os.path.join(train_dir, 'pdb_id_train.csv'), index=False)
+pdb_id_val.to_csv(os.path.join(val_dir, 'pdb_id_val.csv'), index=False)
+pdb_id_test.to_csv(os.path.join(test_dir, 'pdb_id_test.csv'), index=False)
 
 print(f"Train set saved to {os.path.join(train_dir, 'train.csv')}")
 print(f"Validation set saved to {os.path.join(val_dir, 'val.csv')}")
