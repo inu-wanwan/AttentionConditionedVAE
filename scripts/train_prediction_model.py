@@ -27,7 +27,7 @@ def train():
     train_config = load_config('train.yml')['sample_model']
 
     # initialize WandB
-    wandb.init(project='sample_model', config=train_config)
+    wandb.init(project='Docking score regression transformer', config=train_config)
 
     # directories
     alphafold_dir = file_config['data']['alphafold']

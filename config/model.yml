@@ -1,5 +1,5 @@
 sample_model:
-  num_transformer_layers: 3
+  num_transformer_layers: 6
   embed_dim: 384
   num_heads: 6
   ffn_hidden_dim: 1024

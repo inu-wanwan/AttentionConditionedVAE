@@ -21,7 +21,7 @@ os.environ["TOKENIZERS_PARALLELISM"] = "true"
 
 class SmilesProteinDataset(Dataset):
     def __init__(self, csv_file, smiles_max_len, protein_max_len, alphafold_dir="data/alphafold", smiles_colmn="Canonical_SMILES", 
-                 protein_column="Protein", score_colmn="Docking_score"):
+                 protein_column="Target", score_colmn="Docking_score"):
         """
         Args:
             csv_file (string): Path to the CSV file with SMILES strings and docking scores.
@@ -39,7 +39,7 @@ class SmilesProteinDataset(Dataset):
         self.protein_max_len = protein_max_len
 
         # Load the mapping between target names and UniProt IDs
-        uniprot_mapping_file = os.path.join("data", "DUD-E", "targets_pdb_ids.csv")
+        uniprot_mapping_file = os.path.join("data", "protein", "targets_pdb_ids.csv")
         mapping_df = pd.read_csv(uniprot_mapping_file)
         self.target_to_uniprot = mapping_df.set_index("Target")["UniProt ID"].to_dict()
 
