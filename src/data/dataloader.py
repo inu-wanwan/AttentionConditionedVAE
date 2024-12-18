@@ -19,8 +19,7 @@ def custom_colleate_fn(batch):
     protein_masks = torch.stack([item["protein_mask"] for item in batch])
 
     # Batch SMILES featurization
-    smiles_embeddings, smiles_mask = SmilesProteinDataset.featurize_smiles_static(smiles_list, smiles_max_len=100)
-    smiles_cls_embeddings = SmilesProteinDataset.get_smiles_cls_embeddings(smiles_list)
+    smiles_embeddings, smiles_mask, smiles_cls_embeddings, pad_idx = SmilesProteinDataset.featurize_smiles_static(smiles_list, smiles_max_len=100)
     smiles_mask = smiles_mask.float()
 
     return {
@@ -28,13 +27,14 @@ def custom_colleate_fn(batch):
         "smiles_embedding": smiles_embeddings,
         "smiles_mask": smiles_mask,
         "smiles_cls_embedding": smiles_cls_embeddings,
+        "smiles_pad_idx": pad_idx,
         "protein_embedding": protein_embeddings,
         "protein_mask": protein_masks,
         "docking_score": docking_scores,
     }
 
 def get_dataloader(csv_file, smiles_max_len, protein_max_len, batch_size=32, 
-                   shuffle=True, num_workers=4):
+                   shuffle=True):
     """
     Initialize DataLoader with the dataset and custom collate function.
 

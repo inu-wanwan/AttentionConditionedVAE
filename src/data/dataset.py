@@ -123,37 +123,18 @@ class SmilesProteinDataset(Dataset):
         token_embeddings = outputs.last_hidden_state
         max_seq_len = smiles_max_len
         embedding_dim = token_embeddings.size(-1)
+        
         padded_embeddings = torch.zeros(len(smiles_list), max_seq_len, embedding_dim, device=device)
         padded_embeddings[:, :token_embeddings.size(1), :] = token_embeddings
+        
         padded_attention_mask = torch.zeros(len(smiles_list), max_seq_len, dtype=attention_mask.dtype, device=device)
         padded_attention_mask[:, :attention_mask.size(1)] = attention_mask
 
-        return padded_embeddings, padded_attention_mask
-    
-    @staticmethod
-    def get_smiles_cls_embeddings(smiles_list):
-        """
-        Get the class token for SMILES strings.
-        """
-        tokenizer = AutoTokenizer.from_pretrained("DeepChem/ChemBERTa-77M-MLM")
-        model = AutoModel.from_pretrained("DeepChem/ChemBERTa-77M-MLM")
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        model.to(device)
-
-        # Tokenization
-        encoded_inputs = tokenizer(smiles_list, padding=True, truncation=True, return_tensors="pt")
-        input_ids = encoded_inputs["input_ids"].to(device)
-        attention_mask = encoded_inputs["attention_mask"].to(device)
-
-        # Model inference
-        with torch.no_grad():
-            outputs = model(input_ids, attention_mask=attention_mask)
-
-        # Extract the class token
         cls_embeddings = outputs.pooler_output
 
-        return cls_embeddings
+        pad_idx = tokenizer.pad_token_id
 
+        return padded_embeddings, padded_attention_mask, cls_embeddings, pad_idx
 
 def load_config(config_file):
     config_path = os.path.join('config', config_file)
