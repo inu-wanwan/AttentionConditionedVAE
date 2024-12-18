@@ -20,11 +20,14 @@ def custom_colleate_fn(batch):
 
     # Batch SMILES featurization
     smiles_embeddings, smiles_mask = SmilesProteinDataset.featurize_smiles_static(smiles_list, smiles_max_len=100)
+    smiles_cls_embeddings = SmilesProteinDataset.get_smiles_cls_embeddings(smiles_list)
     smiles_mask = smiles_mask.float()
 
     return {
+        "smiles": smiles_list,
         "smiles_embedding": smiles_embeddings,
         "smiles_mask": smiles_mask,
+        "smiles_cls_embedding": smiles_cls_embeddings,
         "protein_embedding": protein_embeddings,
         "protein_mask": protein_masks,
         "docking_score": docking_scores,

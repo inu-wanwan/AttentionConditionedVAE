@@ -21,7 +21,7 @@ os.environ["TOKENIZERS_PARALLELISM"] = "true"
 
 class SmilesProteinDataset(Dataset):
     def __init__(self, csv_file, smiles_max_len, protein_max_len, alphafold_dir="data/alphafold", smiles_colmn="Canonical_SMILES", 
-                 protein_column="Protein", score_colmn="Docking_score"):
+                 protein_column="Target", score_colmn="Docking_score"):
         """
         Args:
             csv_file (string): Path to the CSV file with SMILES strings and docking scores.
@@ -129,6 +129,31 @@ class SmilesProteinDataset(Dataset):
         padded_attention_mask[:, :attention_mask.size(1)] = attention_mask
 
         return padded_embeddings, padded_attention_mask
+    
+    @staticmethod
+    def get_smiles_cls_embeddings(smiles_list):
+        """
+        Get the class token for SMILES strings.
+        """
+        tokenizer = AutoTokenizer.from_pretrained("DeepChem/ChemBERTa-77M-MLM")
+        model = AutoModel.from_pretrained("DeepChem/ChemBERTa-77M-MLM")
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        model.to(device)
+
+        # Tokenization
+        encoded_inputs = tokenizer(smiles_list, padding=True, truncation=True, return_tensors="pt")
+        input_ids = encoded_inputs["input_ids"].to(device)
+        attention_mask = encoded_inputs["attention_mask"].to(device)
+
+        # Model inference
+        with torch.no_grad():
+            outputs = model(input_ids, attention_mask=attention_mask)
+
+        # Extract the class token
+        cls_embeddings = outputs.pooler_output
+
+        return cls_embeddings
+
 
 def load_config(config_file):
     config_path = os.path.join('config', config_file)
