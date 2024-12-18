@@ -1,4 +1,4 @@
-sample_model:
+docking_score_regression_model:
   num_transformer_layers: 3
   embed_dim: 384
   num_heads: 6
