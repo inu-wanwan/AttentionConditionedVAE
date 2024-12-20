@@ -37,7 +37,7 @@ def train():
     data_dir = file_config['data']['samples']
     model_save_dir = file_config['model']
 
-    os.mkdir(os.path.join(model_save_dir, f"docking_score_regression_model_{current_time}"), exist_ok=True)
+    os.makedirs(os.path.join(model_save_dir, f"docking_score_regression_model_{current_time}"), exist_ok=True)
     model_save_dir = os.path.join(model_save_dir, f"docking_score_regression_model_{current_time}")
 
     # data files
