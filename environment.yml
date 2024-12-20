@@ -16,6 +16,7 @@ dependencies:
   - tqdm
   - wandb
   - pyyaml
+  - scikit-learn
   - pip:
     - pytorch-lightning
     - wget
