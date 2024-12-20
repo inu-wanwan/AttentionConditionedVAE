@@ -29,10 +29,16 @@ def train():
     # initialize WandB
     wandb.init(project='docking_score_regression_model', config=train_config)
 
+    # set current time
+    current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+
     # directories
     alphafold_dir = file_config['data']['alphafold']
     data_dir = file_config['data']['samples']
     model_save_dir = file_config['model']
+
+    os.mkdir(os.path.join(model_save_dir, f"docking_score_regression_model_{current_time}"), exist_ok=True)
+    model_save_dir = os.path.join(model_save_dir, f"docking_score_regression_model_{current_time}")
 
     # data files
     train_file = os.path.join(file_config['data']['train'], 'train.csv')
@@ -124,11 +130,16 @@ def train():
         wandb.log({'val_loss': val_loss})
         print(f"Epoch {epoch + 1} / {epochs} | Train Loss: {train_loss:.4f} | Val Loss: {val_loss:.4f}")
 
+        # save the model per epoch
+        checkpoint_path = os.path.join(model_save_dir, f"model_{current_time}_epoch_{epoch}.pth")
+        torch.save(model.state_dict(), checkpoint_path)
+        wandb.save(checkpoint_path)
+
     # save the model
-    current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    torch.save(model.state_dict(), os.path.join(model_save_dir, f"model_{current_time}.pth"))
-    wandb.save("docking_score_predictor.pth")
-    print("Model saved to docking_score_predictor.pth")
+    model_save_path = os.path.join(model_save_dir, f"model_{current_time}.pth")
+    torch.save(model.state_dict(), model_save_path)
+    wandb.save(model_save_path)
+    print(f"Model saved at {model_save_path}")
 
 if __name__ == '__main__':
     train()
