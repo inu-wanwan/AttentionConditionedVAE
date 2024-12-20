@@ -27,14 +27,10 @@ def train():
     train_config = load_config('train.yml')['docking_score_regression_train']
 
     # initialize WandB
-<<<<<<< HEAD
-    wandb.init(project='docking_score_regression_model', config=train_config)
+    wandb.init(project='Docking score regression transformer', config={"train_config": train_config, "model_config": model_config})
 
     # set current time
     current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-=======
-    wandb.init(project='Docking score regression transformer', config={"train_config": train_config, "model_config": model_config})
->>>>>>> 1ba08837082b175d1062c0c34b8e630f181bbe8f
 
     # directories
     alphafold_dir = file_config['data']['alphafold']
