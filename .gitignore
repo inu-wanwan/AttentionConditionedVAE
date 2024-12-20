@@ -3,3 +3,13 @@
 data/*
 
 wandb/*
+
+# ログファイル
+wandb/debug-internal.log
+wandb/debug.log
+wandb/latest-run
+
+# キャッシュファイル
+src/data/__pycache__/
+src/score_prediction_models/__pycache__/
+*.pyc

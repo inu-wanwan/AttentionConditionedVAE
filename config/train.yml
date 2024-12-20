@@ -1,8 +1,12 @@
 docking_score_regression_train:
   batch_size: 256
   epochs: 10
+<<<<<<< HEAD
   lr: 1e-4
 generation_train:
   batch_size: 512
   epochs: 10
   lr: 1e-4
+=======
+  lr: 1e-5
+>>>>>>> 1ba08837082b175d1062c0c34b8e630f181bbe8f

@@ -6,7 +6,10 @@ docking_score_regression_model:
   dropout: 0.1
   max_smiles_tokens: 100
   max_protein_tokens: 1390
+<<<<<<< HEAD
 generation_model:
   embed_dim: 384
   max_smiles_tokens: 100
   max_protein_tokens: 1390
+=======
+>>>>>>> 1ba08837082b175d1062c0c34b8e630f181bbe8f
