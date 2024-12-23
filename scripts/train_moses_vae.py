@@ -133,17 +133,23 @@ class Trainer:
             ]
             tqdm_data.set_postfix_str(" ".join(postfix))
 
-            # Log to WandB
-            wandb.log({
-                "epoch": epoch,
-                "batch": batch_idx,
-                "kl_weight": kl_weight,
-                "lr": lr,
-                "kl_loss": kl_loss.item(),
-                "recon_loss": recon_loss.item(),
-                "loss": loss.item(),
-                "mode": "Eval" if optimizer is None else "Train",
-            })
+            # Log to wandb
+            if optimizer is not None:
+                wandb.log({
+                    "kl_weight": kl_weight,
+                    "lr": lr,
+                    "train_kl_loss": kl_loss.item(),
+                    "train_recon_loss": recon_loss.item(),
+                    "train_loss": loss.item(),
+                })
+            else:
+                wandb.log({
+                    "kl_weight": kl_weight,
+                    "lr": lr,
+                    "eval_kl_loss": kl_loss.item(),
+                    "eval_recon_loss": recon_loss.item(),
+                    "eval_loss": loss.item(),
+                })
 
         postfix = {
             "epoch": epoch,
@@ -179,13 +185,14 @@ class Trainer:
                 logger.save(self.config["log_file"])
 
             if val_loader is not None:
-                tqdm_data = tqdm(
-                    val_loader, desc="Validation (epoch #{})".format(epoch)
-                )
-                postfix = self._train_epoch(model, epoch, tqdm_data, kl_weight)
-                if logger is not None:
-                    logger.append(postfix)
-                    logger.save(self.config["log_file"])
+                with torch.no_grad():
+                    tqdm_data = tqdm(
+                        val_loader, desc="Validation (epoch #{})".format(epoch)
+                    )
+                    postfix = self._train_epoch(model, epoch, tqdm_data, kl_weight)
+                    if logger is not None:
+                        logger.append(postfix)
+                        logger.save(self.config["log_file"])
 
             if (self.config["model_save"] is not None) and (
                 epoch % self.config["save_frequency"] == 0
