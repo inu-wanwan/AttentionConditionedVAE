@@ -31,7 +31,6 @@ class DockingScorePredictor(nn.Module):
                 smiles_embedding, self_attn_wts, cross_attn_wts = block(smiles_embedding, af2_embedding)
                 self_attn_wts_list.append(self_attn_wts)
                 cross_attn_wts_list.append(cross_attn_wts)
-            return smiles_embedding, self_attn_wts_list, cross_attn_wts_list
         else:
             for block in self.transformer_blocks:
                 smiles_embedding, _, _ = block(smiles_embedding, af2_embedding)
