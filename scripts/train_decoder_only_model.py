@@ -48,6 +48,15 @@ val_dataloader = get_dataloader(
     shuffle=False,
 )
 
+# model
+model = DockingScorePredictor(
+    embed_dim=model_config['embed_dim'],
+    num_heads=model_config['num_heads'],
+    ffn_hidden_dim=model_config['ffn_hidden_dim'],
+    num_transformer_blocks=model_config['num_transformer_layers'],
+    return_attn_wts=True
+)
+
 
 for batch_idx, batch in enumerate(train_dataloader):
     print(f"Batch {batch_idx}")
@@ -59,6 +68,12 @@ for batch_idx, batch in enumerate(train_dataloader):
     # print(f"    Protein mask: {batch['protein_mask'].shape}")
     # print(f"    Protein mask; {batch['protein_mask'][0]}")
     # print(f"    Docking score: {batch['docking_score']}")
+    model.eval()
+    with torch.no_grad():
+        docking_score, self_attn_wts_list, cross_attn_wts_list = model(batch['smiles_embedding'], batch['protein_embedding'])
+        print(f"    Docking score: {docking_score}")
+        print(f"    Self attention weights: {len(self_attn_wts_list)}")
+        print(f"    Cross attention weights: {len(cross_attn_wts_list)}")
+        print(f"    Self attention weights: {self_attn_wts_list[0].shape}")
+        print(f"    Cross attention weights: {cross_attn_wts_list[0].shape}")
     break
-
-    

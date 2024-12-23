@@ -35,9 +35,9 @@ def train():
     # directories
     alphafold_dir = file_config['data']['alphafold']
     data_dir = file_config['data']['samples']
-    model_save_dir = file_config['model']
+    model_dir = os.path.join(file_config['data']['model'], 'ds_regression')
 
-    os.makedirs(os.path.join(model_save_dir, f"docking_score_regression_model_{current_time}"), exist_ok=True)
+    os.makedirs(os.path.join(model_dir, f"docking_score_regression_model_{current_time}"), exist_ok=True)
     model_save_dir = os.path.join(model_save_dir, f"docking_score_regression_model_{current_time}")
 
     # data files
@@ -127,12 +127,12 @@ def train():
         print(f"Epoch {epoch + 1} / {epochs} | Train Loss: {train_loss:.4f} | Val Loss: {val_loss:.4f}")
 
         # save the model per epoch
-        checkpoint_path = os.path.join(model_save_dir, f"model_{current_time}_epoch_{epoch}.pth")
+        checkpoint_path = os.path.join(model_save_dir, f"model_epoch_{epoch}.pth")
         torch.save(model.state_dict(), checkpoint_path)
         wandb.save(checkpoint_path)
 
     # save the model
-    model_save_path = os.path.join(model_save_dir, f"model_{current_time}.pth")
+    model_save_path = os.path.join(model_save_dir, f"model.pth")
     torch.save(model.state_dict(), model_save_path)
     wandb.save(model_save_path)
     print(f"Model saved at {model_save_path}")

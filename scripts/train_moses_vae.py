@@ -146,9 +146,9 @@ class Trainer:
                 wandb.log({
                     "kl_weight": kl_weight,
                     "lr": lr,
-                    "eval_kl_loss": kl_loss.item(),
-                    "eval_recon_loss": recon_loss.item(),
-                    "eval_loss": loss.item(),
+                    "val_kl_loss": kl_loss.item(),
+                    "val_recon_loss": recon_loss.item(),
+                    "val_loss": loss.item(),
                 })
 
         postfix = {
