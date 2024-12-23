@@ -52,8 +52,7 @@ val_dataloader = get_dataloader(
 for batch_idx, batch in enumerate(train_dataloader):
     print(f"Batch {batch_idx}")
     print(f"    SMILES: {len(batch['smiles'])}")
-    print(f"    SMILES cls embedding: {batch['smiles_cls_embedding'].shape}")
-    # print(f"    SMILES: {batch['smiles_embedding'].shape}")
+    print(f"    SMILES: {batch['smiles_embedding'].shape}")
     # print(f"    SMILES mask: {batch['smiles_mask'].shape}")
     # print(f"    SMILES mask: {batch['smiles_mask'][0]}")
     # print(f"    Protein embedding: {batch['protein_embedding'].shape}")

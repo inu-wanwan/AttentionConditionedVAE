@@ -28,14 +28,14 @@ class TransformerBlock(nn.Module):
         Forward pass for the TransformerBlock.
         """
         # self attention
-        self_attn_output, _ = self.self_attn(query=smiles_embedding,
+        self_attn_output, self_attn_wts = self.self_attn(query=smiles_embedding,
                                              key=smiles_embedding,
                                              value=smiles_embedding, 
                                              )
         self_attn_output = self.self_attn_layer_norm(self_attn_output + smiles_embedding)
 
         # cross attention
-        cross_attn_output, _ = self.cross_attn(query=self_attn_output, 
+        cross_attn_output, cross_attn_wts = self.cross_attn(query=self_attn_output, 
                                                key=af2_embedding, 
                                                value=af2_embedding, 
                                                )
@@ -47,5 +47,5 @@ class TransformerBlock(nn.Module):
 
         output = torch.nan_to_num(output, nan=0.0)
 
-        return output
+        return output, self_attn_wts, cross_attn_wts
     
