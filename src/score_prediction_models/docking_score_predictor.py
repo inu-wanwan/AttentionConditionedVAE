@@ -17,13 +17,13 @@ class DockingScorePredictor(nn.Module):
             nn.Linear(regressor_hidden_dim, 1),
         )
 
-    def forward(self, smiles_embedding, af2_embedding, smiles_mask, af2_mask):
+    def forward(self, smiles_embedding, af2_embedding):
         """
         Forward pass for the DockingScorePredictor.
         """
         # stack transformer blocks
         for block in self.transformer_blocks:
-            smiles_embedding = block(smiles_embedding, af2_embedding, smiles_mask, af2_mask)
+            smiles_embedding = block(smiles_embedding, af2_embedding)
         
         # flatten the embeddings
         flattened_embedding = smiles_embedding.flatten(start_dim=1) # (batch_size, embed_dim * smiles_max_len)

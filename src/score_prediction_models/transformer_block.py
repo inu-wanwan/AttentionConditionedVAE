@@ -23,7 +23,7 @@ class TransformerBlock(nn.Module):
         )
         self.ffn_layer_norm = nn.LayerNorm(embed_dim)
 
-    def forward(self, smiles_embedding, af2_embedding, smiles_mask, af2_mask):
+    def forward(self, smiles_embedding, af2_embedding):
         """
         Forward pass for the TransformerBlock.
         """

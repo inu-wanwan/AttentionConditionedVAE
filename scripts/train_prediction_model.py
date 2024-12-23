@@ -37,7 +37,7 @@ def train():
     data_dir = file_config['data']['samples']
     model_save_dir = file_config['model']
 
-    os.mkdir(os.path.join(model_save_dir, f"docking_score_regression_model_{current_time}"), exist_ok=True)
+    os.makedirs(os.path.join(model_save_dir, f"docking_score_regression_model_{current_time}"), exist_ok=True)
     model_save_dir = os.path.join(model_save_dir, f"docking_score_regression_model_{current_time}")
 
     # data files
@@ -88,13 +88,11 @@ def train():
         for _, batch in enumerate(train_pbar):
             smiles_embedding = batch['smiles_embedding'].cuda()
             af2_embedding = batch['protein_embedding'].cuda()
-            smiles_mask = batch['smiles_mask'].cuda()
-            af2_mask = batch['protein_mask'].cuda()
             docking_score = batch['docking_score'].cuda()
 
             # forward pass
             optimizer.zero_grad()
-            docking_score_pred = model(smiles_embedding, af2_embedding, smiles_mask, af2_mask)
+            docking_score_pred = model(smiles_embedding, af2_embedding)
             loss = criterion(docking_score_pred.squeeze(), docking_score)
 
             # back propagation
@@ -116,11 +114,9 @@ def train():
             with torch.no_grad():
                 smiles_embedding = batch['smiles_embedding'].cuda()
                 af2_embedding = batch['protein_embedding'].cuda()
-                smiles_mask = batch['smiles_mask'].cuda()
-                af2_mask = batch['protein_mask'].cuda()
                 docking_score = batch['docking_score'].cuda()
 
-                docking_score_pred = model(smiles_embedding, af2_embedding, smiles_mask, af2_mask)
+                docking_score_pred = model(smiles_embedding, af2_embedding)
                 loss = criterion(docking_score_pred.squeeze(), docking_score)
 
                 val_loss += loss.item()
