@@ -15,6 +15,7 @@ from tqdm import tqdm
 from typing import List
 from collections import UserList, defaultdict
 from sklearn.model_selection import train_test_split
+from datetime import datetime
 
 class CircularBuffer:
     def __init__(self, size):
@@ -133,24 +134,6 @@ class Trainer:
             ]
             tqdm_data.set_postfix_str(" ".join(postfix))
 
-            # Log to wandb
-            if optimizer is not None:
-                wandb.log({
-                    "kl_weight": kl_weight,
-                    "lr": lr,
-                    "train_kl_loss": kl_loss.item(),
-                    "train_recon_loss": recon_loss.item(),
-                    "train_loss": loss.item(),
-                })
-            else:
-                wandb.log({
-                    "kl_weight": kl_weight,
-                    "lr": lr,
-                    "val_kl_loss": kl_loss.item(),
-                    "val_recon_loss": recon_loss.item(),
-                    "val_loss": loss.item(),
-                })
-
         postfix = {
             "epoch": epoch,
             "kl_weight": kl_weight,
@@ -180,9 +163,19 @@ class Trainer:
             kl_weight = kl_annealer(epoch)
             tqdm_data = tqdm(train_loader, desc="Training (epoch #{})".format(epoch))
             postfix = self._train_epoch(model, epoch, tqdm_data, kl_weight, optimizer)
+            
             if logger is not None:
                 logger.append(postfix)
                 logger.save(self.config["log_file"])
+
+            wandb.log({
+                "train_epoch": epoch,
+                "kl_weight": kl_weight,
+                "lr": postfix["lr"],
+                "train_kl_loss": postfix["kl_loss"],
+                "train_recon_loss": postfix["recon_loss"],
+                "train_loss": postfix["loss"],
+            })
 
             if val_loader is not None:
                 with torch.no_grad():
@@ -193,6 +186,13 @@ class Trainer:
                     if logger is not None:
                         logger.append(postfix)
                         logger.save(self.config["log_file"])
+                    
+                    wandb.log({
+                        "val_epoch": epoch,
+                        "val_kl_loss": postfix["kl_loss"],
+                        "val_recon_loss": postfix["recon_loss"],
+                        "val_loss": postfix["loss"],
+                    })
 
             if (self.config["model_save"] is not None) and (
                 epoch % self.config["save_frequency"] == 0
@@ -202,10 +202,10 @@ class Trainer:
                     model.state_dict(),
                     self.config["model_save"][:-3] + "_{0:03d}.pt".format(epoch),
                 )
+                wandb.save(self.config["model_save"][:-3] + "_{0:03d}.pt".format(epoch))
                 model = model.to(device)
 
             # Epoch end
-            wandb.log(postfix)
             lr_annealer.step()
 
     def fit(self, model, train_dataloader, val_loader=None):
@@ -252,27 +252,31 @@ def make_vocab(smiles_list: List[str]) -> dict:
 
 
 if __name__ == "__main__":
+    # get current time
+    current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+
     # load config
     file_config = load_config("filepath.yml")
 
     # data files
-    row_file = os.path.join(file_config["data"]["preprocessed"], "filtered_chembl_35.csv")
-    train_file = os.path.join(file_config["data"]["train"], "chembl_35_train.csv")
-    val_file = os.path.join(file_config["data"]["val"], "chembl_35_val.csv")
+    row_file = os.path.join(file_config["data"]["preprocessed"], "filtered_chembl_35_no_test.csv")
+    train_file = os.path.join(file_config["data"]["train"], "chembl_35_train_no_test.csv")
+    val_file = os.path.join(file_config["data"]["val"], "chembl_35_val_no_test.csv")
 
-    
+    # 学習データと検証データが作成されていない場合分割して作成するためのスクリプト
+    """
     # split data
     df = pd.read_csv(row_file)
     train_df, val_df = train_test_split(df, test_size=0.1, random_state=42)
-    train_df.to_csv(os.path.join(file_config["data"]["train"], "chembl_35_train.csv"), index=False)
+    train_df.to_csv(train_file, index=False)
     print(f"Train data is saved at {train_file}")
-    val_df.to_csv(os.path.join(file_config["data"]["val"], "chembl_35_val.csv"), index=False)
+    val_df.to_csv(val_file, index=False)
     print(f"Validation data is saved at {val_file}")
-    
-
+    """
 
     # output file 
-    save_file = os.path.join(file_config["model"], "smiles_vae_chembl_train_smiles_no_dot.pt")
+    os.makedirs(os.path.join(file_config["data"]["model"], "generation_model", current_time), exist_ok=True)
+    save_file = os.path.join(file_config['data']["model"], "generation_model", current_time, "smiles_vae_chembl_train_smiles_no_dot.pt")
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     train_smi_path = "../data/drd2_train_smiles_no_dot.smi"
@@ -303,7 +307,7 @@ if __name__ == "__main__":
         "n_last": 1000,
         "n_jobs": 1,
         "n_workers": 1,
-        "model_save": None,
+        "model_save": save_file,
         "save_frequency": 10,
     }
 
@@ -358,5 +362,6 @@ if __name__ == "__main__":
 
     # モデルの保存
     torch.save(model.state_dict(), save_file)
+    wandb.save(save_file)
 
     print(f"学習データとして{train_smi_path}を利用したモデルを{save_file}として保存しました．")
