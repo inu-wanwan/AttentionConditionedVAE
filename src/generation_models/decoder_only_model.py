@@ -6,7 +6,7 @@ from src.score_prediction_models.docking_score_predictor import DockingScorePred
 """
 DecoderOnlyCVAE model.
 moses vae の decoder を docking score predictor の attention map で条件付けして追加学習するためのモデル
-注意：docking score predictor は return attn wts が True である必要がある
+注意 : docking score predictor は return attn wts が True である必要がある
 """
 
 class DecoderOnlyCVAE(nn.Module):
