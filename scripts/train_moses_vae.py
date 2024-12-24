@@ -7,7 +7,7 @@ import wandb
 import os
 import pandas as pd
 from src.generation_models.moses_vae import SmilesVAE
-from utils import load_config
+from utils import load_config, read_smiles, make_vocab
 from torch.nn.utils import clip_grad_norm_
 from torch.optim.lr_scheduler import _LRScheduler
 from torch.utils.data import DataLoader
@@ -230,25 +230,6 @@ class Trainer:
             self.config["lr_n_period"] * (self.config["lr_n_mult"] ** i)
             for i in range(self.config["lr_n_restarts"])
         )
-
-
-# smilesファイルを読み込む
-def read_smiles(smiles_file: str) -> List[str]:
-    df = pd.read_csv(smiles_file)
-    return df["canonical_smiles"].tolist()
-
-def make_vocab(smiles_list: List[str]) -> dict:
-    vocab = {}
-    for smiles in smiles_list:
-        for c in smiles:
-            if c not in vocab:
-                vocab[c] = len(vocab)
-    vocab["PAD"] = len(vocab)
-    vocab["SOS"] = len(vocab)
-    vocab["EOS"] = len(vocab)
-    vocab["UNK"] = len(vocab)
-    return vocab
-
 
 
 if __name__ == "__main__":

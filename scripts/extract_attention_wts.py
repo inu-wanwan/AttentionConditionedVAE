@@ -56,4 +56,5 @@ with torch.no_grad():
         print(f"self_attn_wts_list_len: {len(self_attn_wts_list)}")
         print(f"cross_attn_wts_list_len: {len(cross_attn_wts_list)}")
         print(f"cross_attn_wts_list[0].shape: {cross_attn_wts_list[0].shape}")
+        print(f"flatten cross_attn_wts_list[0].shape: {cross_attn_wts_list[0].flatten(start_dim=1).shape}")
         break
