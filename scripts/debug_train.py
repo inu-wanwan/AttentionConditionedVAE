@@ -24,8 +24,8 @@ def debug():
     # load config
     file_config = load_config('filepath.yml')
     data_config = load_config('data.yml')
-    model_config = load_config('model.yml')['sample_model']
-    train_config = load_config('train.yml')['sample_model']
+    model_config = load_config('model.yml')['generation_model']
+    train_config = load_config('train.yml')['generation_train']
 
     # initialize WandB
     # wandb.init(project='sample_model', config=train_config)
@@ -60,34 +60,9 @@ def debug():
         batch_size=batch_size,
         shuffle=False,
     )
-
-    # model
-    model = DockingScorePredictor(
-        embed_dim=model_config['embed_dim'],
-        num_heads=model_config['num_heads'],
-        ffn_hidden_dim=model_config['ffn_hidden_dim'],
-        num_transformer_blocks=1,
-    ).cuda()
-
-    # loss function
-    criterion = nn.MSELoss()
-
-    # optimizer
-    optimizer = optim.Adam(model.parameters(), lr=lr)
-
-    model.train()
-    train_loss = 0.0
-    smiles_embedding = torch.randn(1, 100, 384).cuda()
-    af2_embedding = torch.randn(1, 1390, 384).cuda()
-    smiles_mask = torch.ones(1, 100).cuda()
-    af2_mask = torch.ones(1, 1390).cuda()
-
-    score_pred = model(smiles_embedding, af2_embedding, smiles_mask, af2_mask)
-
-    image = make_dot(score_pred, params=dict(model.named_parameters()))
-    image.format = 'png'
-    image.render("DockingScorePredictor")
-
+    
+    pbar = tqdm(train_dataloader, desc="Training")
+    print(f"len(train_dataloader): {len(pbar)}")
 
 
 if __name__ == '__main__':

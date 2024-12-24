@@ -37,8 +37,8 @@ def train():
     data_dir = file_config['data']['samples']
     model_dir = os.path.join(file_config['data']['model'], 'ds_regression')
 
-    os.makedirs(os.path.join(model_dir, f"docking_score_regression_model_{current_time}"), exist_ok=True)
-    model_save_dir = os.path.join(model_save_dir, f"docking_score_regression_model_{current_time}")
+    os.makedirs(os.path.join(model_dir, f"ds_{current_time}"), exist_ok=True)
+    model_save_dir = os.path.join(model_save_dir, f"ds_{current_time}")
 
     # data files
     train_file = os.path.join(file_config['data']['train'], 'train.csv')
@@ -129,7 +129,7 @@ def train():
         # save the model per epoch
         checkpoint_path = os.path.join(model_save_dir, f"model_epoch_{epoch}.pth")
         torch.save(model.state_dict(), checkpoint_path)
-        wandb.save(checkpoint_path)
+        wandb.save(f"checkpoint/model_epoch_{epoch}.pth")
 
     # save the model
     model_save_path = os.path.join(model_save_dir, f"model.pth")

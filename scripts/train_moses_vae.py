@@ -202,7 +202,7 @@ class Trainer:
                     model.state_dict(),
                     self.config["model_save"][:-3] + "_{0:03d}.pt".format(epoch),
                 )
-                wandb.save(self.config["model_save"][:-3] + "_{0:03d}.pt".format(epoch))
+                wandb.save("checkpoint/model_epoch_{0:03d}.pt".format(epoch))
                 model = model.to(device)
 
             # Epoch end
@@ -256,8 +256,8 @@ if __name__ == "__main__":
     """
 
     # output file 
-    os.makedirs(os.path.join(file_config["data"]["model"], "generation_model", current_time), exist_ok=True)
-    save_file = os.path.join(file_config['data']["model"], "generation_model", current_time, "smiles_vae_chembl_train_smiles_no_dot.pt")
+    os.makedirs(os.path.join(file_config["data"]["model"], "moses_vae", current_time), exist_ok=True)
+    save_file = os.path.join(file_config['data']["model"], "moses_vae", current_time, "smiles_vae_chembl_train_smiles_no_dot.pt")
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     train_smi_path = "../data/drd2_train_smiles_no_dot.smi"

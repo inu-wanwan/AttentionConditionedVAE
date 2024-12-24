@@ -12,4 +12,7 @@ data:
   test: "./data/test"
   val: "./data/val"
   model: "./data/model"
+  vocab: "./data/vocab"
+  moses: "./data/model/moses_vae"
+  docking: "./data/model/ds_regression"
   
