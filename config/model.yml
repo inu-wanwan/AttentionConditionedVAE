@@ -1,5 +1,5 @@
 docking_score_regression_model:
-  num_transformer_layers: 3
+  num_transformer_blocks: 3
   embed_dim: 384
   num_heads: 6
   ffn_hidden_dim: 1024
