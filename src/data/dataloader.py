@@ -15,6 +15,7 @@ def custom_colleate_fn(batch):
     """
     smiles_list = [item["smiles"] for item in batch]
     docking_scores = torch.stack([item["docking_score"] for item in batch])
+    protein_id = [item["protein_id"] for item in batch]
     protein_embeddings = torch.stack([item["protein_embedding"] for item in batch])
     protein_masks = torch.stack([item["protein_mask"] for item in batch])
 
@@ -26,6 +27,7 @@ def custom_colleate_fn(batch):
         "smiles": smiles_list,
         "smiles_embedding": smiles_embeddings,
         "smiles_mask": smiles_mask,
+        "protein_id": protein_id,
         "protein_embedding": protein_embeddings,
         "protein_mask": protein_masks,
         "docking_score": docking_scores,

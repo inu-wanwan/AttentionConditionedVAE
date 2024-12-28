@@ -72,7 +72,7 @@ def train():
         embed_dim=model_config['embed_dim'],
         num_heads=model_config['num_heads'],
         ffn_hidden_dim=model_config['ffn_hidden_dim'],
-        num_transformer_blocks=model_config['num_transformer_layers'],
+        num_transformer_blocks=model_config['num_transformer_blocks'],
     ).cuda()
 
     # loss function

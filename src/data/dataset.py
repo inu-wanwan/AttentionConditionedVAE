@@ -22,9 +22,9 @@ os.environ["TOKENIZERS_PARALLELISM"] = "true"
 class SmilesProteinDataset(Dataset):
     def __init__(self, csv_file, smiles_max_len, protein_max_len, 
                  alphafold_dir="data/alphafold", 
-                 smiles_colmn="Canonical_SMILES", 
+                 smiles_column="Canonical_SMILES", 
                  protein_column="Target", 
-                 score_colmn="Docking_score", 
+                 score_column="Docking_score",
                  uniprot_column="UniProt ID"):
         """
         Args:
@@ -36,9 +36,9 @@ class SmilesProteinDataset(Dataset):
         """
         self.smiles_df = pd.read_csv(csv_file)
         self.alphafold_dir = alphafold_dir
-        self.smiles_colmn = smiles_colmn
+        self.smiles_colmn = smiles_column
         self.protein_column = protein_column
-        self.score_colmn = score_colmn
+        self.score_column = score_column
         self.uniprot_column = uniprot_column
         self.smiles_max_len = smiles_max_len
         self.protein_max_len = protein_max_len
@@ -52,7 +52,8 @@ class SmilesProteinDataset(Dataset):
         """
         row = self.smiles_df.iloc[idx]
         smiles = row[self.smiles_colmn]
-        docking_score = row[self.score_colmn]
+        docking_score = row[self.score_column]
+        protein_id = row[self.protein_column]
         uniprot_id = row[self.uniprot_column]
 
         protein_embedding, protein_mask = self.load_alphafold_embedding(uniprot_id)
@@ -61,11 +62,12 @@ class SmilesProteinDataset(Dataset):
 
         return {
             "smiles": smiles,
+            "protein_id": protein_id,
             "protein_embedding": protein_embedding,
             "protein_mask": protein_mask,
             "docking_score": docking_score,
         }
-    
+ 
     def load_alphafold_embedding(self, uniprot_id):
         """
         AlphaFoldの埋め込みを読み込む関数

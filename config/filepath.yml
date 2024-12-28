@@ -16,4 +16,5 @@ data:
   moses: "./data/model/moses_vae"
   docking: "./data/model/ds_regression"
   plots: "./data/plots"
+  eval: "./data/eval"
   
