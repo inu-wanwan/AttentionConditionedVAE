@@ -20,8 +20,12 @@ logging.getLogger("transformers").setLevel(logging.ERROR)
 os.environ["TOKENIZERS_PARALLELISM"] = "true"
 
 class SmilesProteinDataset(Dataset):
-    def __init__(self, csv_file, smiles_max_len, protein_max_len, alphafold_dir="data/alphafold", smiles_colmn="Canonical_SMILES", 
-                 protein_column="Protein", score_colmn="Docking_score"):
+    def __init__(self, csv_file, smiles_max_len, protein_max_len, 
+                 alphafold_dir="data/alphafold", 
+                 smiles_column="Canonical_SMILES", 
+                 protein_column="Target", 
+                 score_column="Docking_score",
+                 ligand_id=None):
         """
         Args:
             csv_file (string): Path to the CSV file with SMILES strings and docking scores.
@@ -32,16 +36,14 @@ class SmilesProteinDataset(Dataset):
         """
         self.smiles_df = pd.read_csv(csv_file)
         self.alphafold_dir = alphafold_dir
-        self.smiles_colmn = smiles_colmn
+        self.smiles_column = smiles_column
         self.protein_column = protein_column
-        self.score_colmn = score_colmn
+        self.score_column = score_column
         self.smiles_max_len = smiles_max_len
         self.protein_max_len = protein_max_len
 
-        # Load the mapping between target names and UniProt IDs
-        uniprot_mapping_file = os.path.join("data", "DUD-E", "targets_pdb_ids.csv")
-        mapping_df = pd.read_csv(uniprot_mapping_file)
-        self.target_to_uniprot = mapping_df.set_index("Target")["UniProt ID"].to_dict()
+        if ligand_id:
+            self.smiles_df = self.smiles_df[self.smiles_df["Ligand_id"] == ligand_id]
 
     def __len__(self):
         return len(self.smiles_df)
@@ -51,11 +53,11 @@ class SmilesProteinDataset(Dataset):
         Retrieve an item by idx
         """
         row = self.smiles_df.iloc[idx]
-        smiles = row[self.smiles_colmn]
-        docking_score = row[self.score_colmn]
+        smiles = row[self.smiles_column]
+        docking_score = row[self.score_column]
         protein_id = row[self.protein_column]
 
-        uniprot_id = self.get_uniprot_id(protein_id)
+        uniprot_id = row["UniProt ID"]
 
         protein_embedding, protein_mask = self.load_alphafold_embedding(uniprot_id)
 
@@ -66,12 +68,8 @@ class SmilesProteinDataset(Dataset):
             "protein_embedding": protein_embedding,
             "protein_mask": protein_mask,
             "docking_score": docking_score,
+            "protein_id": protein_id,
         }
-    
-    def get_uniprot_id(self, target):
-        if target.upper() not in self.target_to_uniprot:
-            raise KeyError(f"Protein name not found: {target}")
-        return self.target_to_uniprot[target.upper()]
     
     def load_alphafold_embedding(self, uniprot_id):
         """
