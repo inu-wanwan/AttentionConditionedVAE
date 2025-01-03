@@ -17,6 +17,7 @@ dependencies:
   - wandb
   - pyyaml
   - scikit-learn
+  - seaborn
   - pip:
     - pytorch-lightning
     - wget

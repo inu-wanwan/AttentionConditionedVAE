@@ -34,7 +34,7 @@ def custom_colleate_fn(batch):
     }
 
 def get_dataloader(csv_file, smiles_max_len, protein_max_len, batch_size=32, 
-                   shuffle=True):
+                   shuffle=True, ligand_id=None):
     """
     Initialize DataLoader with the dataset and custom collate function.
 
@@ -53,6 +53,7 @@ def get_dataloader(csv_file, smiles_max_len, protein_max_len, batch_size=32,
         csv_file=csv_file,
         smiles_max_len=smiles_max_len,
         protein_max_len=protein_max_len,
+        ligand_id=ligand_id,
     )
 
     dataloader = DataLoader(

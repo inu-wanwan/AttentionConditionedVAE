@@ -56,11 +56,13 @@ def main():
     model_config = load_config('model.yml')['docking_score_regression_model']
 
     # File paths
+    timestamp = '2024-12-28_22-17-43'
     model_dir = file_config['data']['docking']
-    model_file = os.path.join(model_dir, 'docking_score_regression_model_2024-12-23_14-28-07/model_2024-12-23_14-28-07.pth')
-    test_file = os.path.join(file_config['data']['test'], 'test_1k.csv')
-    train1k_file = os.path.join(file_config['data']['train'], 'train_1k.csv')
-    results_file = os.path.join(file_config['data']['eval'], 'ds_regression', 'results_2024-12-23_14-28-07_train.csv')
+    model_file = os.path.join(model_dir, f"ds_{timestamp}", 'model.pth')
+    test_file = os.path.join(file_config['data']['test'], 'test_FNTA.csv')
+    train_file = os.path.join(file_config['data']['train'], 'train_FNTA.csv')
+    os.makedirs(os.path.join(file_config['data']['eval'], 'ds_regression', timestamp), exist_ok=True)
+    results_file = os.path.join(file_config['data']['eval'], 'ds_regression', timestamp, 'results_test.csv')
 
     # Device setup
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -75,9 +77,9 @@ def main():
     model.load_state_dict(torch.load(model_file))
 
     # DataLoader setup with batch processing
-    batch_size = 32  # Define batch size
+    batch_size = 128  # Define batch size
     test_dataloader = get_dataloader(
-        csv_file=train1k_file,
+        csv_file=test_file,
         smiles_max_len=data_config['dataset']['smiles_max_len'],
         protein_max_len=data_config['dataset']['protein_max_len'],
         batch_size=batch_size,
