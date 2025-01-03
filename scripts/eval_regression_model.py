@@ -56,11 +56,11 @@ def main():
     model_config = load_config('model.yml')['docking_score_regression_model']
 
     # File paths
-    timestamp = '2024-12-28_22-17-43'
+    timestamp = '2025-01-03_22-35-27'
     model_dir = file_config['data']['docking']
     model_file = os.path.join(model_dir, f"ds_{timestamp}", 'model.pth')
-    test_file = os.path.join(file_config['data']['test'], 'test_FNTA.csv')
-    train_file = os.path.join(file_config['data']['train'], 'train_FNTA.csv')
+    test_file = os.path.join(file_config['data']['test'], 'test_DRD3.csv')
+    train_file = os.path.join(file_config['data']['train'], 'train_DRD3.csv')
     os.makedirs(os.path.join(file_config['data']['eval'], 'ds_regression', timestamp), exist_ok=True)
     results_file = os.path.join(file_config['data']['eval'], 'ds_regression', timestamp, 'results_test.csv')
 
