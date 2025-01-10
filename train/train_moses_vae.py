@@ -7,7 +7,7 @@ import wandb
 import os
 import pandas as pd
 from src.generation_models.moses_vae import SmilesVAE
-from utils import load_config, read_smiles, make_vocab
+from scripts.utils import load_config, read_smiles, make_vocab
 from torch.nn.utils import clip_grad_norm_
 from torch.optim.lr_scheduler import _LRScheduler
 from torch.utils.data import DataLoader

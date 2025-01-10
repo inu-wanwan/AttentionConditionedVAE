@@ -8,7 +8,7 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 from torch.nn.utils import clip_grad_norm_
 from tqdm import tqdm
-from utils import load_config, make_vocab
+from scripts.utils import load_config, make_vocab
 from src.data.dataloader import get_dataloader
 from src.score_prediction_models.docking_score_predictor import DockingScorePredictor
 from src.generation_models.moses_vae import SmilesVAE

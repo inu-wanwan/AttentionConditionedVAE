@@ -6,7 +6,7 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
 from tqdm import tqdm
-from utils import load_config
+from scripts.utils import load_config
 from src.data.dataloader import get_dataloader
 from src.score_prediction_models.docking_score_predictor import DockingScorePredictor
 from datetime import datetime

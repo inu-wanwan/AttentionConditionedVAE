@@ -1,7 +1,7 @@
 import os
 import torch
 import pandas as pd
-from utils import load_config, load_vae_model, load_docking_score_predictor
+from scripts.utils import load_config, load_vae_model, load_docking_score_predictor
 from rdkit import Chem, DataStructs
 from rdkit.Chem import AllChem, Draw
 from src.data.dataloader import get_dataloader
