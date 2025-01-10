@@ -4,3 +4,6 @@ dataset:
 fnta:
   smiles_max_len: 100
   protein_max_len: 400
+drd3:
+  smiles_max_len: 100
+  protein_max_len: 400

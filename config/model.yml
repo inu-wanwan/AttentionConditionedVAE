@@ -12,8 +12,10 @@ moses_vae_model:
   max_protein_tokens: 1390
 decoder_only_model:
   embed_dim: 384
-  max_smiles_tokens: 100
-  max_protein_tokens: 1390
+  smiles_max_len: 100
+  af2_max_len: 400
   transformer_layer_used: 0
   moses_vae_file: "smiles_vae_dmqp1m_no_dot_dup.pt"
   docking_score_regression_file: "ds_2024-12-28_22-17-43/model.pth"
+  train_file: "train_DRD3.csv"
+  val_file: "val_DRD3.csv"

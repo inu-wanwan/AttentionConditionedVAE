@@ -94,12 +94,17 @@ class DecoderOnlyCVAE(nn.Module):
         ノイズとドッキングスコアのよい af2 embedding と smiles embedding のペアから SMILES を生成する
         """
         with torch.no_grad():
-            z_noise = self.pretrained_smiles_vae.sample_z_prior(batch_size=batch_size)
+            # smiles embedding と af2 embedding を batch_size 分生成
+            smiles_embedding = smiles_embedding.repeat(batch_size, 1, 1)
+            af2_embedding = af2_embedding.repeat(batch_size, 1, 1)
+
+            z_noise = self.pretrained_smiles_vae.sample_z_prior(batch_size=batch_size).to(smiles_embedding.device)
 
             _, _, cross_attn_wts = self.pretrained_docking_score_predictor(
                 smiles_embedding, 
                 af2_embedding
-                )[self.transformer_layer_used]
+                )
+            cross_attn_wts = cross_attn_wts[self.transformer_layer_used]
             z_condition = self.mlp_attention_compressor(cross_attn_wts.flatten(start_dim=1))
 
             z_concat = torch.cat([z_noise, z_condition], dim=1)

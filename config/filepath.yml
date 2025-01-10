@@ -15,6 +15,7 @@ data:
   vocab: "./data/vocab"
   moses: "./data/model/moses_vae"
   docking: "./data/model/ds_regression"
+  decoder_only: "./data/model/decoder_only_model"
   plots: "./data/plots"
   eval: "./data/eval"
   
