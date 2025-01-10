@@ -1,6 +1,0 @@
-dataset:
-  smiles_max_len: 100
-  protein_max_len: 1390
-fnta:
-  smiles_max_len: 100
-  protein_max_len: 400

@@ -43,7 +43,6 @@ def train():
     # data files
     train_file = os.path.join(file_config['data']['train'], 'train.csv')
     val_file = os.path.join(file_config['data']['val'], 'val.csv')
-    test_file = os.path.join(file_config['data']['test'], 'test.csv')
 
     # train parameters
     batch_size = train_config['batch_size']
