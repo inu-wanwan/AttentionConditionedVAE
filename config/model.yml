@@ -15,5 +15,5 @@ decoder_only_model:
   max_smiles_tokens: 100
   max_protein_tokens: 1390
   transformer_layer_used: 0
-  moses_vae_file: "ds_2024-12-23_22-52-47/smiles_vae_chembl_35_000.pt"
-  docking_score_regression_file: "2024-12-23_22-52-47/model_epoch_6.pth"
+  moses_vae_file: "smiles_vae_dmqp1m_no_dot_dup.pt"
+  docking_score_regression_file: "ds_2024-12-28_22-17-43/model.pth"

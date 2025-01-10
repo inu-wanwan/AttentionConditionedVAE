@@ -6,3 +6,7 @@ generation_train:
   batch_size: 512
   epochs: 10
   lr: 1e-4
+decoder_only_train:
+  batch_size: 128
+  epochs: 10
+  lr: 1e-5

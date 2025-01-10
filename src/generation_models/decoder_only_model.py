@@ -69,7 +69,8 @@ class DecoderOnlyCVAE(nn.Module):
         _, _, cross_attn_wts = self.pretrained_docking_score_predictor(
             chemberta_smiles_embedding, 
             af2_embedding
-            )[self.transformer_layer_used]
+            )
+        cross_attn_wts = cross_attn_wts[self.transformer_layer_used]
         
         # attention map を圧縮して condition を作成
         # (batch_size, smiles_max_len * af2_max_len) -> (batch_size, condition_latent_dim)
