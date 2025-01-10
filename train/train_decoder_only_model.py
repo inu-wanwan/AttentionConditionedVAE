@@ -24,7 +24,7 @@ class Trainer:
 
     def _epoch_step(self, pbar, train):
         """
-        Optimizer が与えられた場合は学習を行い、与えられない場合は validation を行う
+        train が True のとき学習を行い、False のとき検証を行う
         """
         if train:
             self.model.train()
@@ -110,8 +110,8 @@ if __name__ == '__main__':
     model_save_dir = os.path.join(file_config['data']['model'], 'decoder_only_model', f"{current_time}")
 
     # data files
-    train_file = os.path.join(file_config['data']['train'], 'train_FNTA.csv')
-    val_file = os.path.join(file_config['data']['val'], 'val_FNTA.csv')
+    train_file = os.path.join(file_config['data']['train'], model_config['train_file'])
+    val_file = os.path.join(file_config['data']['val'], model_config['val_file'])
 
     # train parameters
     batch_size = train_config['batch_size']
@@ -185,7 +185,7 @@ if __name__ == '__main__':
     model = DecoderOnlyCVAE(
         smiles_vae=vae_model,
         docking_score_predictor=docking_model,
-        af2_max_len=model_config['protein_max_len'],
+        af2_max_len=model_config['af2_max_len'],
     ).to(torch.device('cuda'))
 
     # training
