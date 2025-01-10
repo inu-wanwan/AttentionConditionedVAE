@@ -185,7 +185,7 @@ if __name__ == '__main__':
     model = DecoderOnlyCVAE(
         smiles_vae=vae_model,
         docking_score_predictor=docking_model,
-        af2_max_len=data_config['protein_max_len'],
+        af2_max_len=model_config['protein_max_len'],
     ).to(torch.device('cuda'))
 
     # training
