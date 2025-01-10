@@ -13,3 +13,6 @@ wandb/latest-run
 src/data/__pycache__/
 src/score_prediction_models/__pycache__/
 *.pyc
+
+# config
+config/*
