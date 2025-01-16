@@ -87,10 +87,10 @@ def main():
 
     # paths
     model_path = os.path.join(file_config['data']['decoder_only'], model_timestamp, 'checkpoint', 'model_epoch_17.pth')
-    ligand_file = os.path.join(file_config['data']['test'], 'generate_ligands.csv')
+    ligand_file = os.path.join(file_config['data']['test'], 'accurate_10_seed.csv')
     out_dir = os.path.join(file_config['data']['eval'], 'decoder_only', model_timestamp)
     os.makedirs(out_dir, exist_ok=True)
-    out_file = os.path.join(out_dir, 'generated_molecules.csv')
+    out_file = os.path.join(out_dir, 'accurate.csv')
 
     # Load VAE model
     vae_model = load_vae_model().to(device)
@@ -109,7 +109,7 @@ def main():
     model.load_state_dict(torch.load(model_path))
 
     # Generate molecules
-    ligand_id_list = pd.read_csv(ligand_file)['Ligand_ID'].tolist()
+    ligand_id_list = pd.read_csv(ligand_file)['Ligand_id'].tolist()
     generated_molecules_df = generate(model, device, ligand_id_list, num_gen=100)
 
     # Save generated molecules
