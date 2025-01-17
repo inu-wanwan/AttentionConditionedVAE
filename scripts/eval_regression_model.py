@@ -1,10 +1,21 @@
 import torch
 import os
+import argparse
+import pickle
 import pandas as pd
 from tqdm import tqdm
 from utils import load_config
 from src.data.dataloader import get_dataloader
 from src.score_prediction_models.docking_score_predictor import DockingScorePredictor
+
+def argparser():
+    """
+    Argument parser for command line arguments.
+    """
+    parser = argparse.ArgumentParser(description="Evaluate the docking score prediction model.")
+    parser.add_argument('--timestamp', '-t', type=str, required=True, help='Timestamp of the trained model')
+    parser.add_argument('--use_epoch', '-e', type=int, default=None, help='Epoch to use for evaluation')
+    return parser.parse_args()
 
 def predict_scores(device, model, dataloader, output_file):
     """
@@ -38,7 +49,8 @@ def predict_scores(device, model, dataloader, output_file):
                     'SMILES': smiles[i],
                     'Protein_ID': protein_id[i],
                     'Actual_Docking_Score': docking_scores[i].item(),
-                    'Predicted_Docking_Score': pred_scores[i].item()
+                    'Predicted_Docking_Score': pred_scores[i].item(),
+                    'Error': abs(docking_scores[i].item() - pred_scores[i].item())
                 })
 
     # Save results to CSV
@@ -50,19 +62,29 @@ def main():
     """
     Main function to evaluate the docking score prediction model using batch processing.
     """
+    # Parse command line arguments
+    args = argparser()
+    timestamp = args.timestamp
+    use_epoch = args.use_epoch
+
     # Load configurations
     file_config = load_config('filepath.yml')
-    data_config = load_config('data.yml')
-    model_config = load_config('model.yml')['docking_score_regression_model']
+    model_config_file = os.path.join(file_config['data']['docking'], f"ds_{timestamp}", 'model_config.pkl')
 
+    with open(model_config_file, 'rb') as f:
+        model_config = pickle.load(f)
+    
     # File paths
-    timestamp = '2025-01-03_22-35-27'
+    target = model_config['target']
     model_dir = file_config['data']['docking']
-    model_file = os.path.join(model_dir, f"ds_{timestamp}", 'model.pth')
-    test_file = os.path.join(file_config['data']['test'], 'test_DRD3.csv')
-    train_file = os.path.join(file_config['data']['train'], 'train_DRD3.csv')
+    test_file = os.path.join(file_config['data']['test'], f"test_{target}.csv")
     os.makedirs(os.path.join(file_config['data']['eval'], 'ds_regression', timestamp), exist_ok=True)
-    results_file = os.path.join(file_config['data']['eval'], 'ds_regression', timestamp, 'results_test.csv')
+    results_file = os.path.join(file_config['data']['eval'], 'ds_regression', timestamp, f"results_{target}.csv")
+
+    if use_epoch is not None:
+        model_file = os.path.join(model_dir, f"ds_{timestamp}", f"model_epoch_{use_epoch}.pth")
+    else:
+        model_file = os.path.join(model_dir, f"ds_{timestamp}", 'model.pth')
 
     # Device setup
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -80,8 +102,8 @@ def main():
     batch_size = 128  # Define batch size
     test_dataloader = get_dataloader(
         csv_file=test_file,
-        smiles_max_len=data_config['dataset']['smiles_max_len'],
-        protein_max_len=data_config['dataset']['protein_max_len'],
+        smiles_max_len=model_config['smiles_max_len'],
+        protein_max_len=model_config['protein_max_len'],
         batch_size=batch_size,
         shuffle=False
     )
