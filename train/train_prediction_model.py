@@ -21,6 +21,7 @@ def parse_args():
     parser.add_argument('--epochs', '-e', type=int, default=None, help='Override the number of epochs in the config file')
     parser.add_argument('--batch_size', '-b', type=int, default=None, help='Override the batch size in the config file')
     parser.add_argument('--lr', '-l', type=float, default=None, help='Override the learning rate in the config file')
+    parser.add_argument('--gpu', '-g', type=int, default=0, help='GPU ID to use')
     return parser.parse_args()
 
 def check_for_nan(tensor, name):
@@ -32,6 +33,10 @@ def train(args):
     """
     Train the docking score prediction model.
     """
+    # set GPU
+    os.environ['CUDA_VISIBLE_DEVICES'] = str(args.gpu)
+    print(f"Using GPU {args.gpu}")
+    
     # load config
     file_config = load_config('filepath.yml')
     model_config = load_config(args.model_config)
