@@ -42,7 +42,7 @@ def make_configs():
         # Model config
         model_config = {
             "target": protein,
-            "embed_dim": 512,
+            "embed_dim": 384,
             "num_heads": 4,
             "ffn_hidden_dim": 1024,
             "num_transformer_blocks": 3,
