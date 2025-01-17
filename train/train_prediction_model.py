@@ -39,8 +39,8 @@ def train(args):
     
     # load config
     file_config = load_config('filepath.yml')
-    model_config = load_config(args.model_config)
-    train_config = load_config(args.train_config)
+    model_config = load_config(os.path.join(args.config_dir, args.model_config))
+    train_config = load_config(os.path.join(args.config_dir, args.train_config))
 
     # Override parameters if specified in arguments
     if args.epochs is not None:
@@ -51,7 +51,12 @@ def train(args):
         train_config['lr'] = args.lr
 
     # initialize WandB
-    wandb.init(project='Docking score regression transformer', config={"train_config": train_config, "model_config": model_config})
+    wandb.init(
+        project='(local) Docking score regression transformer', 
+        group=model_config['target'], 
+        name=f"target_{model_config['target']}_batch_{train_config['batch_size']}_lr_{train_config['lr']}",
+        config={"train_config": train_config, "model_config": model_config}
+        )
 
     # set current time
     current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")

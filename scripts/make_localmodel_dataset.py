@@ -17,7 +17,7 @@ val_dir = path_config['data']['val']
 
 smiles_df = pd.read_csv(smiles_file)
 
-diverse_proteins = ['AKT1', 'AMPC', 'CP3A4', 'CXCR4', 'GCR', 'HIVPR', 'HIVRT', 'KIF11']
+diverse_proteins = ['AKT1', 'AMPC', 'CP3A4', 'CXCR4', 'GCR']
 
 for protein in diverse_proteins:
     test_file = os.path.join(test_dir, f'test_{protein}.csv')
