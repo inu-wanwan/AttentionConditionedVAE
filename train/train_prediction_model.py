@@ -1,6 +1,8 @@
 import sys
 import os
 import wandb
+import argparse
+import pickle
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -11,20 +13,37 @@ from src.data.dataloader import get_dataloader
 from src.score_prediction_models.docking_score_predictor import DockingScorePredictor
 from datetime import datetime
 
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--config_dir', '-c', type=str, default='config/', help='Directory containing config files')
+    parser.add_argument('--train_config', '-t', type=str, default='train.yml', help='Training config file')
+    parser.add_argument('--model_config', '-m', type=str, default='model.yml', help='Model config file')
+    parser.add_argument('--epochs', '-e', type=int, default=None, help='Override the number of epochs in the config file')
+    parser.add_argument('--batch_size', '-b', type=int, default=None, help='Override the batch size in the config file')
+    parser.add_argument('--lr', '-l', type=float, default=None, help='Override the learning rate in the config file')
+    return parser.parse_args()
+
 def check_for_nan(tensor, name):
     if torch.isnan(tensor).any():
         print(tensor)
         raise ValueError(f"NaN found in {name}")
 
-def train():
+def train(args):
     """
     Train the docking score prediction model.
     """
     # load config
     file_config = load_config('filepath.yml')
-    data_config = load_config('data.yml')
-    model_config = load_config('model.yml')['docking_score_regression_model']
-    train_config = load_config('train.yml')['docking_score_regression_train']
+    model_config = load_config(args.model_config)
+    train_config = load_config(args.train_config)
+
+    # Override parameters if specified in arguments
+    if args.epochs is not None:
+        train_config['epochs'] = args.epochs
+    if args.batch_size is not None:
+        train_config['batch_size'] = args.batch_size
+    if args.lr is not None:
+        train_config['lr'] = args.lr
 
     # initialize WandB
     wandb.init(project='Docking score regression transformer', config={"train_config": train_config, "model_config": model_config})
@@ -38,11 +57,18 @@ def train():
     model_dir = os.path.join(file_config['data']['model'], 'ds_regression')
 
     os.makedirs(os.path.join(model_dir, f"ds_{current_time}"), exist_ok=True)
-    model_save_dir = os.path.join(model_save_dir, f"ds_{current_time}")
+    model_save_dir = os.path.join(model_dir, f"ds_{current_time}")
+    
+    # save config files
+    config_save_path = os.path.join(model_save_dir, 'model_config.pkl')
+    with open(config_save_path, 'wb') as f:
+        pickle.dump(model_config, f)
+    print(f"Model config saved at {config_save_path}")
+
 
     # data files
-    train_file = os.path.join(file_config['data']['train'], 'train.csv')
-    val_file = os.path.join(file_config['data']['val'], 'val.csv')
+    train_file = os.path.join(file_config['data']['train'], train_config['train_file'])
+    val_file = os.path.join(file_config['data']['val'], train_config['val_file'])
 
     # train parameters
     batch_size = train_config['batch_size']
@@ -52,16 +78,16 @@ def train():
     # dataloaders
     train_dataloader = get_dataloader(
         csv_file=train_file,
-        smiles_max_len=data_config['dataset']['smiles_max_len'],
-        protein_max_len=data_config['dataset']['protein_max_len'],
+        smiles_max_len=model_config['smiles_max_len'],
+        protein_max_len=model_config['protein_max_len'],
         batch_size=batch_size,
         shuffle=True,
     )
 
     val_dataloader = get_dataloader(
         csv_file=val_file,
-        smiles_max_len=data_config['dataset']['smiles_max_len'],
-        protein_max_len=data_config['dataset']['protein_max_len'],
+        smiles_max_len=model_config['smiles_max_len'],
+        protein_max_len=model_config['protein_max_len'],
         batch_size=batch_size,
         shuffle=False,
     )
@@ -137,4 +163,5 @@ def train():
     print(f"Model saved at {model_save_path}")
 
 if __name__ == '__main__':
-    train()
+    args = parse_args()
+    train(args)

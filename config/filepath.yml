@@ -18,4 +18,4 @@ data:
   decoder_only: "./data/model/decoder_only_model"
   plots: "./data/plots"
   eval: "./data/eval"
-  
+config: "./config"
