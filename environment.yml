@@ -9,7 +9,6 @@ dependencies:
   - numpy
   - pandas
   - matplotlib
-  - torchvision
   - ipykernel
   - pip
   - rdkit

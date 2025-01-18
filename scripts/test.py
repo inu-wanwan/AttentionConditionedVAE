@@ -39,7 +39,7 @@ def smiles_to_atoms(smiles):
 
 if __name__ == '__main__':
     # テスト用のSMILES文字列
-    smiles = 'CCO'
+    smiles = 'COc1ccc([C@H]2[C@@H]3[NH+]=c4ccc(Cl)cc4=C3CCN2C(=O)Nc2ccc(F)c(Cl)c2)cc1'
 
     # SMILES文字列からAtomsオブジェクトを生成
     atoms = smiles_to_atoms(smiles)
