@@ -24,3 +24,5 @@ dependencies:
     - beautifulsoup4
     - transformers
     - torchviz
+    - schnetpack
+    - ase
