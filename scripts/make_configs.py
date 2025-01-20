@@ -30,11 +30,11 @@ def make_configs():
     # Load path config
     path_config = load_config('filepath.yml')
 
-    protein_list = ['AKT1', 'AMPC', 'CP3A4', 'CXCR4', 'GCR']
+    protein_list = ['FNTA', 'DRD3', 'AKT1', 'AMPC', 'CP3A4', 'CXCR4', 'GCR']
 
     for protein in protein_list:
-        os.makedirs(os.path.join(path_config['config'], 'ds_regression', protein), exist_ok=True)
-        config_dir = os.path.join(path_config['config'], 'ds_regression', protein)
+        os.makedirs(os.path.join(path_config['config'], 'schnet_ds_regression', protein), exist_ok=True)
+        config_dir = os.path.join(path_config['config'], 'schnet_ds_regression', protein)
 
         # Get protein length
         protein_length = get_protein_length(protein)
@@ -47,6 +47,7 @@ def make_configs():
             "ffn_hidden_dim": 1024,
             "num_transformer_blocks": 3,
             "smiles_max_len": 100,
+            "atoms_max_len": 350,
             "protein_max_len": protein_length,
             "regressor_hidden_dim": 512,
             "dropout": 0.1,
@@ -58,8 +59,9 @@ def make_configs():
             "train_file": f"train_{protein}.csv",
             "val_file": f"val_{protein}.csv",
             "batch_size": 32,
-            "epochs": 10,
+            "epochs": 20,
             "lr": 1e-5,
+            "save_frequency": 2,
         }
 
         # Save model config

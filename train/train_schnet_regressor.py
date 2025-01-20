@@ -258,6 +258,7 @@ def main():
         schnet_cutoff=model_config['schnet_cutoff'],
         dropout=model_config['dropout'],
         atoms_max_len=model_config['atoms_max_len'],
+        regressor_hidden_dim=model_config['regressor_hidden_dim']
     ).to(device)
 
     # Optimizer
