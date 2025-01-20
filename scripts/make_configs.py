@@ -42,7 +42,7 @@ def make_configs():
         # Model config
         model_config = {
             "target": protein,
-            "embed_dim": 384,
+            "embed_dim": 128,
             "num_heads": 4,
             "ffn_hidden_dim": 1024,
             "num_transformer_blocks": 3,
@@ -52,13 +52,15 @@ def make_configs():
             "regressor_hidden_dim": 512,
             "dropout": 0.1,
             "return_attn_wts": False,
+            "schnet_n_interactions": 3,
+            "schnet_cutoff": 5.0,
         }
 
         # Train config
         train_config = {
             "train_file": f"train_{protein}.csv",
             "val_file": f"val_{protein}.csv",
-            "batch_size": 32,
+            "batch_size": 128,
             "epochs": 20,
             "lr": 1e-5,
             "save_frequency": 2,
