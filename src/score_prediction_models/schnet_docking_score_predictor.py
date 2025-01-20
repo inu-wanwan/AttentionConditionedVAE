@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.functional as F
 import numpy as np
+import schnetpack as spk
 from .transformer_block import TransformerBlock
 from ase import Atoms
 from rdkit import Chem
@@ -45,9 +46,9 @@ class SchNetDockingScorePredictor(nn.Module):
         )
 
         self.af2_embedding_dim_reducer = None
-        if embed_dim != 385:
+        if embed_dim != 384:
             self.af2_embedding_dim_reducer = nn.Sequential(
-                nn.Linear(385, embed_dim, bias=True),
+                nn.Linear(384, embed_dim, bias=True),
                 nn.ReLU(),
                 nn.Dropout(dropout)
             )
@@ -80,26 +81,62 @@ class SchNetDockingScorePredictor(nn.Module):
             padded_schnet_embeddings.append(padded_emb)
 
         return torch.stack(padded_schnet_embeddings)
+    
+    def reshape_schnet_embeddings(
+            self,
+            schnet_embeddings: torch.Tensor,
+            idx_m: torch.Tensor,
+            batch_size: int,
+            atoms_max_len: int
+        ) -> torch.Tensor:
+        """
+        Reshape SchNet embeddings from (atoms_count, embed_dim) to (batch_size, atoms_len, embed_dim).
+        
+        Args:
+            schnet_embeddings (torch.Tensor): Tensor of shape (atoms_count, embed_dim), 
+                                            containing atomic embeddings.
+            idx_m (torch.Tensor): Tensor of shape (atoms_count,), indicating batch indices for each atom.
+            batch_size (int): Total number of batches.
+            atoms_len (int): Maximum number of atoms per batch.
+            
+        Returns:
+            torch.Tensor: Reshaped embeddings of shape (batch_size, atoms_len, embed_dim).
+        """
+        # 埋め込みの次元数を取得
+        embed_dim = schnet_embeddings.size(1)
+        
+        # 出力テンソルを初期化 (パディング部分は 0)
+        reshaped_embeddings = torch.zeros(batch_size, atoms_max_len, embed_dim, device=schnet_embeddings.device)
+        
+        # 各バッチごとに原子の埋め込みを配置
+        for i in range(batch_size):
+            # 現在のバッチに属する原子をフィルタリング
+            mask = idx_m == i
+            embeddings_for_batch = schnet_embeddings[mask]  # (N_atoms_in_batch, embed_dim)
+            
+            # 最大原子数 (atoms_len) に揃えて格納
+            reshaped_embeddings[i, :embeddings_for_batch.size(0), :] = embeddings_for_batch
+        
+        return reshaped_embeddings
 
     
-    def forward(self, batch_positions, batch_atomic_numbers, af2_embedding):
+    def forward(self, batch_schnet_input, af2_embedding):
         """
         Forward pass for the SchNetDockingScorePredictor.
         Arguments:
-            batch_positions (torch.Tensor): Tensor of atomic positions (batch_size, num_atoms, 3).
-            batch_atomic_numbers (torch.Tensor): Tensor of atomic numbers (batch_size, num_atoms).
+            batch_schnet_input (dict): Dictionary containing the input tensors for SchNet.
             af2_embedding (torch.Tensor): Tensor of AF2 embeddings (batch_size, embed_dim).
         Returns:
             docking_score (torch.Tensor): Predicted docking scores (batch_size, 1).
         """
-        # calculate SchNet embeddings
-        schnet_embeddings = self.schnet(
-            positions=batch_positions,
-            atomic_numbers=batch_atomic_numbers
-        )
+        # get batch size
+        batch_size = af2_embedding.size(0)
 
-        # pad the embeddings
-        schnet_embeddings = self.pad_schnet_embeddings(schnet_embeddings, self.atoms_max_len) # (batch_size, atoms_max_len, embed_dim)
+        # calculate SchNet embeddings
+        schnet_embeddings = self.schnet(batch_schnet_input)["scalar_representation"] # (batch_size, atoms_max_len, embed_dim)
+
+        # reshape the embeddings
+        schnet_embeddings = self.reshape_schnet_embeddings(schnet_embeddings, batch_schnet_input['_idx_m'], batch_size, self.atoms_max_len)
 
         # reduce the embedding dimension if necessary
         if self.af2_embedding_dim_reducer:

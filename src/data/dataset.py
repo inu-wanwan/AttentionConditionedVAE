@@ -96,6 +96,12 @@ class SmilesProteinDataset(Dataset):
 
         return padded_embedding, attention_mask
     
+    def get_ligand_atoms(smiles_list):
+        """
+        Get the atom embeddings for SMILES strings.
+        """
+        
+    
     @staticmethod
     def featurize_smiles_static(smiles_list, smiles_max_len):
         """
@@ -148,7 +154,6 @@ class SmilesProteinDataset(Dataset):
         cls_embeddings = outputs.pooler_output
 
         return cls_embeddings
-
 
 def load_config(config_file):
     config_path = os.path.join('config', config_file)

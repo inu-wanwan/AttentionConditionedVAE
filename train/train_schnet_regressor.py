@@ -6,6 +6,9 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import numpy as np
+import schnetpack as spk
+import schnetpack.transform as trn
+import schnetpack.properties as properties
 from ase import Atoms
 from rdkit import Chem
 from rdkit.Chem import AllChem
@@ -74,8 +77,24 @@ class Trainer:
         )
 
         return atoms
+    
+    def calculate_Rij(self, inputs):
+        """
+        Calculate Rij 
+        Args:
+            inputs (dict): Input dictionary containing properties.R (atomic positions) and atomic indices.
 
-    def pad_atomic_data(batch_atomic_numbers, batch_positions, atoms_max_len):
+        Returns:
+            dict: Updated input dictionary with properties.Rij
+        """
+        # atomic positions: N_atoms x 3
+        positions = inputs[properties.R]
+        Rij = positions[inputs[properties.idx_j]] - positions[inputs[properties.idx_i]]
+        inputs[properties.Rij] = Rij.to(self.device)
+
+        return inputs
+
+    def pad_atomic_data(self, batch_atomic_numbers, batch_positions, atoms_max_len):
         """
         Pad atomic numbers and positions to a fixed length defined by atoms_max_len.
 
@@ -116,7 +135,7 @@ class Trainer:
 
         return padded_atomic_numbers, padded_positions
 
-    def _epoch_step(self, pbar, train):
+    def _epoch_step(self, pbar, train, converter):
         """
         train == True -> train, False -> validation
         """
@@ -128,21 +147,18 @@ class Trainer:
         loss = 0.0
         for batch in pbar:
             # Convert smiles to atoms
-            batch_positions = []
-            batch_atomic_numbers = []
+            atoms_list = []
             for smiles in batch['smiles']:
                 atoms = self.smiles_to_atoms(smiles)
-                batch_positions.append(atoms.positions)
-                batch_atomic_numbers.append(atoms.numbers)
-            
-            # Move data to device
-            batch_positions = torch.tensor(batch_positions, dtype=torch.float32).to(self.device)
-            batch_atomic_numbers = torch.tensor(batch_atomic_numbers, dtype=torch.long).to(self.device)
+                atoms_list.append(atoms)
+                
+            batch_schnet_input = converter(atoms_list)
+            batch_schnet_input = self.calculate_Rij(batch_schnet_input)
             protein_embedding = batch['protein_embedding'].to(self.device)
             docking_scores = batch['docking_score'].to(self.device)
 
             # Forward pass
-            pred_scores = self.model(batch_positions, batch_atomic_numbers, protein_embedding)
+            pred_scores = self.model(batch_schnet_input, protein_embedding)
             batch_loss = self.criterion(pred_scores, docking_scores)
 
             # Backward pass
@@ -163,15 +179,16 @@ class Trainer:
         return loss
     
     def train(self, epochs, save_frequency, train_dataloader, val_dataloader, checkpoint_dir):
+        converter = spk.interfaces.AtomsConverter(neighbor_list=trn.ASENeighborList(cutoff=5.), dtype=torch.float32, device=self.device)
         for epoch in range(epochs):
             # Train
             print(f"Epoch {epoch+1}/{epochs}")
             pbar = tqdm(train_dataloader, desc=f"Epoch {epoch+1}/{epochs}")
-            train_loss = self._epoch_step(pbar, train=True)
+            train_loss = self._epoch_step(pbar, train=True, converter=converter)
 
             # Validation
             pbar = tqdm(val_dataloader, desc=f"Epoch {epoch+1}/{epochs}")
-            val_loss = self._epoch_step(pbar, train=False)
+            val_loss = self._epoch_step(pbar, train=False, converter=converter)
 
             print(f"Epoch {epoch+1}/{epochs} | Train Loss: {train_loss:.4f} | Val Loss: {val_loss:.4f}")
 
@@ -211,14 +228,12 @@ def main():
         train_config['lr'] = args.lr
 
     # Initialize WandB
-    """
     wandb.init(
         project='(schnet) Docking Score Prediction', 
         group=model_config['target'],
         name=f"target_{model_config['target']}_batch_{train_config['batch_size']}_lr_{train_config['lr']}",
         config={"train_config": train_config, "model_config": model_config}
         )
-    """
     
     # Set current time
     current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
@@ -277,7 +292,7 @@ def main():
     optimizer = optim.Adam(model.parameters(), lr=lr)
 
     # Train
-    trainer = Trainer(model, optimizer, current_time, device)
+    trainer = Trainer(model, optimizer, current_time, device, model_config['atoms_max_len'])
     trainer.train(epochs, save_frequency, train_dataloader, val_dataloader, model_save_dir)
 
     # Save final model
