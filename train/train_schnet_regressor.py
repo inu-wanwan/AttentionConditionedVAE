@@ -47,36 +47,41 @@ class Trainer:
         - smiles (str): SMILES string
 
         Returns:
-        - ase.Atoms: ASE Atoms object
+        - ase.Atoms or None: ASE Atoms object if successful, None otherwise
         """
-        # convert SMILES to RDKit Mol object
-        mol = Chem.MolFromSmiles(smiles)
-        if mol is None:
-            raise ValueError(f"Invalid SMILES string: {smiles}")
-        
-        # generate 3D coordinates
-        mol = Chem.AddHs(mol) # add hydrogens
-        success = AllChem.EmbedMolecule(mol, AllChem.ETKDG())
-        if success != 0:
-            raise ValueError(f"Failed to generate 3D coordinates for SMILES: {smiles}")
-        
-        # energy minimize
-        AllChem.UFFOptimizeMolecule(mol)
-        
-        # get 3d coordinates
-        conformer = mol.GetConformer()
-        positions = np.array([list(conformer.GetAtomPosition(i)) for i in range(mol.GetNumAtoms())])
+        try:
+            # convert SMILES to RDKit Mol object
+            mol = Chem.MolFromSmiles(smiles)
+            if mol is None:
+                raise ValueError(f"Invalid SMILES string: {smiles}")
+            
+            # generate 3D coordinates
+            mol = Chem.AddHs(mol) # add hydrogens
+            success = AllChem.EmbedMolecule(mol, AllChem.ETKDG())
+            if success != 0:
+                raise ValueError(f"Failed to generate 3D coordinates for SMILES: {smiles}")
+            
+            # energy minimize
+            AllChem.UFFOptimizeMolecule(mol)
+            
+            # get 3d coordinates
+            conformer = mol.GetConformer()
+            positions = np.array([list(conformer.GetAtomPosition(i)) for i in range(mol.GetNumAtoms())])
 
-        # get atomic numbers
-        atomic_numbers = [atom.GetAtomicNum() for atom in mol.GetAtoms()]
+            # get atomic numbers
+            atomic_numbers = [atom.GetAtomicNum() for atom in mol.GetAtoms()]
 
-        # create ASE Atoms object
-        atoms = Atoms(
-            positions=positions,
-            numbers=atomic_numbers
-        )
+            # create ASE Atoms object
+            atoms = Atoms(
+                positions=positions,
+                numbers=atomic_numbers
+            )
 
-        return atoms
+            return atoms
+        
+        except Exception as e:
+            print(f"Error converting SMILES to atoms: {e}")
+            return None
     
     def calculate_Rij(self, inputs):
         """
@@ -94,47 +99,6 @@ class Trainer:
 
         return inputs
 
-    def pad_atomic_data(self, batch_atomic_numbers, batch_positions, atoms_max_len):
-        """
-        Pad atomic numbers and positions to a fixed length defined by atoms_max_len.
-
-        Args:
-            batch_atomic_numbers (list of numpy.ndarray): List of atomic numbers arrays (num_atoms,).
-            batch_positions (list of numpy.ndarray): List of positions arrays (num_atoms, 3).
-            atoms_max_len (int): Maximum number of atoms to pad to.
-
-        Returns:
-            padded_atomic_numbers (torch.Tensor): Padded atomic numbers (batch_size, atoms_max_len).
-            padded_positions (torch.Tensor): Padded positions (batch_size, atoms_max_len, 3).
-        """
-        padded_atomic_numbers = []
-        padded_positions = []
-
-        for atomic_numbers, positions in zip(batch_atomic_numbers, batch_positions):
-            num_atoms = len(atomic_numbers)
-
-            # Pad atomic numbers
-            if num_atoms < atoms_max_len:
-                pad_atomic = np.zeros(atoms_max_len, dtype=np.int64)
-                pad_atomic[:num_atoms] = atomic_numbers
-            else:
-                pad_atomic = atomic_numbers[:atoms_max_len]
-            padded_atomic_numbers.append(pad_atomic)
-
-            # Pad positions
-            if num_atoms < atoms_max_len:
-                pad_pos = np.zeros((atoms_max_len, 3), dtype=np.float32)
-                pad_pos[:num_atoms, :] = positions
-            else:
-                pad_pos = positions[:atoms_max_len, :]
-            padded_positions.append(pad_pos)
-
-        # Convert to torch tensors
-        padded_atomic_numbers = torch.tensor(padded_atomic_numbers, dtype=torch.long)
-        padded_positions = torch.tensor(padded_positions, dtype=torch.float32)
-
-        return padded_atomic_numbers, padded_positions
-
     def _epoch_step(self, pbar, train, converter):
         """
         train == True -> train, False -> validation
@@ -150,7 +114,15 @@ class Trainer:
             atoms_list = []
             for smiles in batch['smiles']:
                 atoms = self.smiles_to_atoms(smiles)
-                atoms_list.append(atoms)
+                if atoms is not None:
+                    atoms_list.append(atoms)
+                else:
+                    print(f"Skipping SMILES: {smiles}")
+                    continue
+
+            if not atoms_list:
+                print("No valid atoms found in batch, skipping...")
+                continue
                 
             batch_schnet_input = converter(atoms_list)
             batch_schnet_input = self.calculate_Rij(batch_schnet_input)
