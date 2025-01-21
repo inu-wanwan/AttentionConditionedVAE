@@ -9,12 +9,12 @@ import numpy as np
 import schnetpack as spk
 import schnetpack.transform as trn
 import schnetpack.properties as properties
-from ase import Atoms
+from ase import Atoms 
 from rdkit import Chem
 from rdkit.Chem import AllChem
 from torch.nn.utils import clip_grad_norm_
 from tqdm import tqdm
-from scripts.utils import load_config
+from scripts.utils import load_config, smiles_to_atoms, calculate_Rij
 from src.data.dataloader import get_dataloader
 from src.score_prediction_models.schnet_docking_score_predictor import SchNetDockingScorePredictor
 from datetime import datetime
@@ -39,66 +39,6 @@ class Trainer:
         self.criterion = nn.MSELoss()
         self.atoms_max_len = atoms_max_len
 
-    def smiles_to_atoms(self, smiles):
-        """
-        Convert SMILES to ASE Atoms object.
-        
-        Args:
-        - smiles (str): SMILES string
-
-        Returns:
-        - ase.Atoms or None: ASE Atoms object if successful, None otherwise
-        """
-        try:
-            # convert SMILES to RDKit Mol object
-            mol = Chem.MolFromSmiles(smiles)
-            if mol is None:
-                raise ValueError(f"Invalid SMILES string: {smiles}")
-            
-            # generate 3D coordinates
-            mol = Chem.AddHs(mol) # add hydrogens
-            success = AllChem.EmbedMolecule(mol, AllChem.ETKDG())
-            if success != 0:
-                raise ValueError(f"Failed to generate 3D coordinates for SMILES: {smiles}")
-            
-            # energy minimize
-            AllChem.UFFOptimizeMolecule(mol)
-            
-            # get 3d coordinates
-            conformer = mol.GetConformer()
-            positions = np.array([list(conformer.GetAtomPosition(i)) for i in range(mol.GetNumAtoms())])
-
-            # get atomic numbers
-            atomic_numbers = [atom.GetAtomicNum() for atom in mol.GetAtoms()]
-
-            # create ASE Atoms object
-            atoms = Atoms(
-                positions=positions,
-                numbers=atomic_numbers
-            )
-
-            return atoms
-        
-        except Exception as e:
-            print(f"Error converting SMILES to atoms: {e}")
-            return None
-    
-    def calculate_Rij(self, inputs):
-        """
-        Calculate Rij 
-        Args:
-            inputs (dict): Input dictionary containing properties.R (atomic positions) and atomic indices.
-
-        Returns:
-            dict: Updated input dictionary with properties.Rij
-        """
-        # atomic positions: N_atoms x 3
-        positions = inputs[properties.R]
-        Rij = positions[inputs[properties.idx_j]] - positions[inputs[properties.idx_i]]
-        inputs[properties.Rij] = Rij.to(self.device)
-
-        return inputs
-
     def _epoch_step(self, pbar, train, converter):
         """
         train == True -> train, False -> validation
@@ -113,7 +53,7 @@ class Trainer:
             # Convert smiles to atoms
             atoms_list = []
             for smiles in batch['smiles']:
-                atoms = self.smiles_to_atoms(smiles)
+                atoms = smiles_to_atoms(smiles)
                 if atoms is not None:
                     atoms_list.append(atoms)
                 else:
@@ -125,7 +65,7 @@ class Trainer:
                 continue
                 
             batch_schnet_input = converter(atoms_list)
-            batch_schnet_input = self.calculate_Rij(batch_schnet_input)
+            batch_schnet_input = calculate_Rij(batch_schnet_input, self.device)
             protein_embedding = batch['protein_embedding'].to(self.device)
             docking_scores = batch['docking_score'].to(self.device)
 

@@ -6,9 +6,13 @@ import numpy as np
 import pickle
 import torch
 import pandas as pd
+import schnetpack.properties as properties
 from typing import List
 from src.generation_models.moses_vae import SmilesVAE
 from src.score_prediction_models.docking_score_predictor import DockingScorePredictor
+from ase import Atoms
+from rdkit import Chem
+from rdkit.Chem import AllChem
 
 def load_config(config_file):
     config_path = os.path.join('config', config_file)
@@ -107,3 +111,63 @@ def load_docking_score_predictor(timestamp: str) -> DockingScorePredictor:
     model.load_state_dict(torch.load(model_path))
 
     return model
+
+def smiles_to_atoms(smiles):
+    """
+    Convert SMILES to ASE Atoms object.
+    
+    Args:
+    - smiles (str): SMILES string
+
+    Returns:
+    - ase.Atoms or None: ASE Atoms object if successful, None otherwise
+    """
+    try:
+        # convert SMILES to RDKit Mol object
+        mol = Chem.MolFromSmiles(smiles)
+        if mol is None:
+            raise ValueError(f"Invalid SMILES string: {smiles}")
+        
+        # generate 3D coordinates
+        mol = Chem.AddHs(mol) # add hydrogens
+        success = AllChem.EmbedMolecule(mol, AllChem.ETKDG())
+        if success != 0:
+            raise ValueError(f"Failed to generate 3D coordinates for SMILES: {smiles}")
+        
+        # energy minimize
+        AllChem.UFFOptimizeMolecule(mol)
+        
+        # get 3d coordinates
+        conformer = mol.GetConformer()
+        positions = np.array([list(conformer.GetAtomPosition(i)) for i in range(mol.GetNumAtoms())])
+
+        # get atomic numbers
+        atomic_numbers = [atom.GetAtomicNum() for atom in mol.GetAtoms()]
+
+        # create ASE Atoms object
+        atoms = Atoms(
+            positions=positions,
+            numbers=atomic_numbers
+        )
+
+        return atoms
+    
+    except Exception as e:
+        print(f"Error converting SMILES to atoms: {e}")
+        return None
+
+def calculate_Rij(inputs, device):
+    """
+    Calculate Rij 
+    Args:
+        inputs (dict): Input dictionary containing properties.R (atomic positions) and atomic indices.
+
+    Returns:
+        dict: Updated input dictionary with properties.Rij
+    """
+    # atomic positions: N_atoms x 3
+    positions = inputs[properties.R]
+    Rij = positions[inputs[properties.idx_j]] - positions[inputs[properties.idx_i]]
+    inputs[properties.Rij] = Rij.to(device)
+
+    return inputs
