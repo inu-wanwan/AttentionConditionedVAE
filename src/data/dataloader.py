@@ -14,6 +14,7 @@ def custom_colleate_fn(batch):
     Custom collate function for the DataLoader.
     """
     smiles_list = [item["smiles"] for item in batch]
+    ligand_id = [item["ligand_id"] for item in batch]
     docking_scores = torch.stack([item["docking_score"] for item in batch])
     protein_id = [item["protein_id"] for item in batch]
     protein_embeddings = torch.stack([item["protein_embedding"] for item in batch])
@@ -25,6 +26,7 @@ def custom_colleate_fn(batch):
 
     return {
         "smiles": smiles_list,
+        "ligand_id": ligand_id,
         "smiles_embedding": smiles_embeddings,
         "smiles_mask": smiles_mask,
         "protein_id": protein_id,

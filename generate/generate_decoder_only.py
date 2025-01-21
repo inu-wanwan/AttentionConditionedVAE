@@ -83,20 +83,21 @@ def main():
 
     # set config
     model_timestamp = '2025-01-10_20-12-20'
+    regressor_timestamp = '2025-01-03_22-35-27'
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     # paths
     model_path = os.path.join(file_config['data']['decoder_only'], model_timestamp, 'checkpoint', 'model_epoch_17.pth')
-    ligand_file = os.path.join(file_config['data']['test'], 'accurate_10_seed.csv')
+    ligand_file = os.path.join(file_config['data']['eval'], 'ds_regression', regressor_timestamp, 'binwise_accurate.csv')
     out_dir = os.path.join(file_config['data']['eval'], 'decoder_only', model_timestamp)
     os.makedirs(out_dir, exist_ok=True)
-    out_file = os.path.join(out_dir, 'accurate.csv')
+    out_file = os.path.join(out_dir, 'binwise_accurate.csv')
 
     # Load VAE model
     vae_model = load_vae_model().to(device)
 
     # Load docking score prediction model
-    docking_model = load_docking_score_predictor("2025-01-03_22-35-27").to(device)
+    docking_model = load_docking_score_predictor(regressor_timestamp).to(device)
 
     # Load decoder only model
     model = DecoderOnlyCVAE(
@@ -109,7 +110,7 @@ def main():
     model.load_state_dict(torch.load(model_path))
 
     # Generate molecules
-    ligand_id_list = pd.read_csv(ligand_file)['Ligand_id'].tolist()
+    ligand_id_list = pd.read_csv(ligand_file)['Ligand_ID'].tolist()
     generated_molecules_df = generate(model, device, ligand_id_list, num_gen=100)
 
     # Save generated molecules

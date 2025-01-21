@@ -25,6 +25,7 @@ class SmilesProteinDataset(Dataset):
                  smiles_column="Canonical_SMILES", 
                  protein_column="Target", 
                  score_column="Docking_score",
+                 ligand_id_column="Ligand_id",
                  ligand_id=None):
         """
         Args:
@@ -39,6 +40,7 @@ class SmilesProteinDataset(Dataset):
         self.smiles_column = smiles_column
         self.protein_column = protein_column
         self.score_column = score_column
+        self.ligand_id_column = ligand_id_column
         self.smiles_max_len = smiles_max_len
         self.protein_max_len = protein_max_len
 
@@ -54,6 +56,7 @@ class SmilesProteinDataset(Dataset):
         """
         row = self.smiles_df.iloc[idx]
         smiles = row[self.smiles_column]
+        ligand_id = row[self.ligand_id_column]
         docking_score = row[self.score_column]
         protein_id = row[self.protein_column]
 
@@ -65,6 +68,7 @@ class SmilesProteinDataset(Dataset):
 
         return {
             "smiles": smiles,
+            "ligand_id": ligand_id,
             "protein_embedding": protein_embedding,
             "protein_mask": protein_mask,
             "docking_score": docking_score,
@@ -100,7 +104,7 @@ class SmilesProteinDataset(Dataset):
         """
         Get the atom embeddings for SMILES strings.
         """
-        
+
     
     @staticmethod
     def featurize_smiles_static(smiles_list, smiles_max_len):

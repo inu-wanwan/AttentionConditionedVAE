@@ -35,6 +35,7 @@ def predict_scores(device, model, dataloader, output_file):
         for batch in tqdm(dataloader, desc="Predicting docking scores"):
             # Load batch data
             smiles = batch['smiles']
+            ligand_id = batch['ligand_id']
             protein_id = batch['protein_id']
             docking_scores = batch['docking_score'].to(device)
             smiles_embedding = batch['smiles_embedding'].to(device)
@@ -47,6 +48,7 @@ def predict_scores(device, model, dataloader, output_file):
             for i in range(len(smiles)):
                 results.append({
                     'SMILES': smiles[i],
+                    'Ligand_ID': ligand_id[i],
                     'Protein_ID': protein_id[i],
                     'Actual_Docking_Score': docking_scores[i].item(),
                     'Predicted_Docking_Score': pred_scores[i].item(),
