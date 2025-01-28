@@ -146,6 +146,12 @@ if __name__ == '__main__':
     os.makedirs(os.path.join(file_config['data']['model'], 'decoder_only_model', f"{target}_{current_time}"), exist_ok=True)
     model_save_dir = os.path.join(file_config['data']['model'], 'decoder_only_model', f"{target}_{current_time}")
 
+    # save config files
+    config_save_path = os.path.join(model_save_dir, 'model_config.pkl')
+    with open(config_save_path, 'wb') as f:
+        pickle.dump(model_config, f)
+    print(f"Model config saved at {config_save_path}")
+
     # data files
     train_file = os.path.join(file_config['data']['train'], model_config['train_file'])
     val_file = os.path.join(file_config['data']['val'], model_config['val_file'])
