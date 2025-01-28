@@ -3,6 +3,7 @@ import os
 import wandb
 import pickle
 import torch
+import argparse
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
@@ -14,6 +15,17 @@ from src.score_prediction_models.docking_score_predictor import DockingScorePred
 from src.generation_models.moses_vae import SmilesVAE
 from src.generation_models.decoder_only_model import DecoderOnlyCVAE
 from datetime import datetime
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--config_dir', '-c', type=str, default='config/', help='Directory containing config files')
+    parser.add_argument('--train_config', '-t', type=str, default='train.yml', help='Training config file')
+    parser.add_argument('--model_config', '-m', type=str, default='model.yml', help='Model config file')
+    parser.add_argument('--epochs', '-e', type=int, default=None, help='Override the number of epochs in the config file')
+    parser.add_argument('--batch_size', '-b', type=int, default=None, help='Override the batch size in the config file')
+    parser.add_argument('--lr', '-l', type=float, default=None, help='Override the learning rate in the config file')
+    parser.add_argument('--gpu', '-g', type=int, default=0, help='GPU ID to use')
+    return parser.parse_args()
 
 class Trainer:
     def __init__(self, model, optimizer, current_time, device):
@@ -63,7 +75,7 @@ class Trainer:
 
         return recon_loss
     
-    def train(self, epochs, train_dataloader, val_dataloader, checkpoint_dir):
+    def train(self, epochs, train_dataloader, val_dataloader, checkpoint_dir, save_freq):
         for epoch in range(epochs):
             # train
             print(f"Epoch {epoch + 1} / {epochs}")
@@ -84,21 +96,46 @@ class Trainer:
                 })
             
             # save the model per epoch
-            checkpoint_path = os.path.join(checkpoint_dir, f"model_epoch_{epoch}.pth")
-            torch.save(self.model.state_dict(), checkpoint_path)
-            wandb.save(checkpoint_path)
+            if (epoch + 1) % save_freq == 0:
+                checkpoint_path = os.path.join(checkpoint_dir, f"model_epoch_{epoch}.pth")
+                torch.save(self.model.state_dict(), checkpoint_path)
+                wandb.save(f"checkpoint/model_epoch_{epoch}.pth")
+
+        # save the model
+        model_save_path = os.path.join(checkpoint_dir, f"model.pth")
+        torch.save(self.model.state_dict(), model_save_path)
+        wandb.save(f"checkpoint/model.pth")
 
 if __name__ == '__main__':
+    # parse arguments
+    args = parse_args()
+
+    # set gpu
+    os.environ['CUDA_VISIBLE_DEVICES'] = str(args.gpu)
+    print(f"GPU ID: {args.gpu}")
+
     # load config
     file_config = load_config('filepath.yml')
     data_config = load_config('data.yml')['fnta']
-    model_config = load_config('model.yml')['decoder_only_model']
-    train_config = load_config('train.yml')['decoder_only_train']
+    model_config = load_config(os.path.join(args.config_dir, args.model_config))
+    train_config = load_config(os.path.join(args.config_dir, args.train_config))
+
+    # set target
+    target = model_config['target']
+
+    # override config
+    if args.epochs is not None:
+        train_config['epochs'] = args.epochs
+    if args.batch_size is not None:
+        train_config['batch_size'] = args.batch_size
+    if args.lr is not None:
+        train_config['lr'] = args.lr
 
     # initialize WandB
     wandb.init(
         project='Attention Conditioned VAE (decoder only model)', 
-        config={"train_config": train_config, "model_config": model_config}
+        config={"train_config": train_config, "model_config": model_config},
+        name=f"{target}_decoder_only_model"
         )
 
     # set current time
@@ -106,8 +143,8 @@ if __name__ == '__main__':
 
     # directories
     os.makedirs(os.path.join(file_config['data']['model'], 'decoder_only_model'), exist_ok=True)
-    os.makedirs(os.path.join(file_config['data']['model'], 'decoder_only_model', f"{current_time}"), exist_ok=True)
-    model_save_dir = os.path.join(file_config['data']['model'], 'decoder_only_model', f"{current_time}")
+    os.makedirs(os.path.join(file_config['data']['model'], 'decoder_only_model', f"{target}_{current_time}"), exist_ok=True)
+    model_save_dir = os.path.join(file_config['data']['model'], 'decoder_only_model', f"{target}_{current_time}")
 
     # data files
     train_file = os.path.join(file_config['data']['train'], model_config['train_file'])
@@ -117,21 +154,22 @@ if __name__ == '__main__':
     batch_size = train_config['batch_size']
     epochs = train_config['epochs']
     lr = float(train_config['lr'])
+    save_freq = train_config['save_freq']
 
     # dataloaders
     train_dataloader = get_dataloader(
         csv_file=train_file,
-        smiles_max_len=data_config['smiles_max_len'],
-        protein_max_len=data_config['protein_max_len'],
+        smiles_max_len=model_config['smiles_max_len'],
+        protein_max_len=model_config['protein_max_len'],
         batch_size=batch_size,
         shuffle=True,
     )
 
     val_dataloader = get_dataloader(
         csv_file=val_file,
-        smiles_max_len=data_config['smiles_max_len'],
-        protein_max_len=data_config['protein_max_len'],
-        batch_size=batch_size,
+        smiles_max_len=model_config['smiles_max_len'],
+        protein_max_len=model_config['protein_max_len'],
+        batch_size=16,
         shuffle=False,
     )
 
@@ -168,9 +206,20 @@ if __name__ == '__main__':
 
     # docking score prediction model
     # model file 
-    docking_model_file = os.path.join(file_config['data']['docking'], model_config['docking_score_regression_file'])
-    docking_model_config = load_config('model.yml')['docking_score_regression_model']
+    docking_model_file = os.path.join(file_config['data']['docking'], model_config['docking_score_regression'], 'model.pth')
+    docking_model_config = os.path.join(file_config['data']['docking'], model_config['docking_score_regression'], 'model_config.pkl')
+    
+    try:
+        with open(docking_model_config, 'rb') as f:
+            docking_model_config = pickle.load(f)
+    except FileNotFoundError:
+        print(f"Config file not found: {docking_model_config}")
 
+    if docking_model_config['target'] != target:
+        print(f"Target mismatch: {docking_model_config['target']} != {target}")
+        sys.exit(1)
+ 
+    # docking model load
     docking_model = DockingScorePredictor(
         embed_dim=docking_model_config['embed_dim'],
         num_heads=docking_model_config['num_heads'],
@@ -185,12 +234,13 @@ if __name__ == '__main__':
     model = DecoderOnlyCVAE(
         smiles_vae=vae_model,
         docking_score_predictor=docking_model,
-        af2_max_len=model_config['af2_max_len'],
+        af2_max_len=model_config['protein_max_len'],
+        transformer_layer_used=model_config['transformer_layer_used'],
     ).to(torch.device('cuda'))
 
     # training
     optimizer = optim.Adam(model.parameters(), lr=lr)
     trainer = Trainer(model, optimizer, current_time, torch.device('cuda'))
 
-    trainer.train(epochs, train_dataloader, val_dataloader, model_save_dir)
+    trainer.train(epochs, train_dataloader, val_dataloader, model_save_dir, save_freq)
     

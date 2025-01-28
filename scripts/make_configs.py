@@ -30,11 +30,11 @@ def make_configs():
     # Load path config
     path_config = load_config('filepath.yml')
 
-    protein_list = ['FNTA', 'DRD3', 'AKT1', 'AMPC', 'CP3A4', 'CXCR4', 'GCR']
+    protein_list = ['AKT1', 'AMPC', 'CP3A4', 'CXCR4', 'GCR']
 
     for protein in protein_list:
-        os.makedirs(os.path.join(path_config['config'], 'schnet_ds_regression', protein), exist_ok=True)
-        config_dir = os.path.join(path_config['config'], 'schnet_ds_regression', protein)
+        os.makedirs(os.path.join(path_config['config'], 'decoder_only', protein), exist_ok=True)
+        config_dir = os.path.join(path_config['config'], 'decoder_only', protein)
 
         # Get protein length
         protein_length = get_protein_length(protein)
@@ -42,18 +42,14 @@ def make_configs():
         # Model config
         model_config = {
             "target": protein,
-            "embed_dim": 128,
-            "num_heads": 4,
-            "ffn_hidden_dim": 1024,
-            "num_transformer_blocks": 3,
+            "embed_dim": 384,
             "smiles_max_len": 100,
-            "atoms_max_len": 350,
-            "protein_max_len": protein_length,
-            "regressor_hidden_dim": 512,
-            "dropout": 0.1,
-            "return_attn_wts": False,
-            "schnet_n_interactions": 3,
-            "schnet_cutoff": 5.0,
+            "protein_max_len": protein_length + 20,
+            "transformer_layer_used" : 0,
+            "moses_vae_file": "smiles_vae_dmqp1m_no_dot_dup.pt",
+            "docking_score_regression": "ds_2025-01-17_16-05-23",
+            "train_file": f"train_{protein}.csv",
+            "val_file": f"val_{protein}.csv",
         }
 
         # Train config
@@ -62,8 +58,8 @@ def make_configs():
             "val_file": f"val_{protein}.csv",
             "batch_size": 128,
             "epochs": 20,
-            "lr": 1e-5,
-            "save_frequency": 2,
+            "lr": 1e-4,
+            "save_freq": 2,
         }
 
         # Save model config
