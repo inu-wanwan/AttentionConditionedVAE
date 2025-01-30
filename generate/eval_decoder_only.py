@@ -89,7 +89,7 @@ def get_top_10_ligands_from_csv(csv_file):
         list: List of top 10 ligand IDs.
     """
     df = pd.read_csv(csv_file)
-    top_10_df = df.nlargest(10, 'Docking_score')
+    top_10_df = df.nsmallest(10, 'Docking_score')
     top_10_ligands = top_10_df['Ligand_ID'].tolist()
 
     return top_10_ligands
